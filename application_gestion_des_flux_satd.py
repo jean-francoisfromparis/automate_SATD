@@ -1,4 +1,3 @@
-import csv
 import os
 import shutil
 import sys
@@ -6,8 +5,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from tkinter import *
-from tkinter import filedialog, messagebox, messagebox as msg, ttk
-from tkinter.messagebox import showinfo
+from tkinter import filedialog, messagebox, ttk, font
 from tkinter.ttk import Progressbar
 
 import numpy as np
@@ -18,8 +16,7 @@ from pandastable import Table
 from pyexcel_ods import save_data
 from pynput.keyboard import Controller
 from selenium import webdriver
-from selenium.common import TimeoutException, WebDriverException
-from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
@@ -42,231 +39,6 @@ def resource_path(relative_path):
     except Exception:
         base_path = os.path.dirname(__file__)
     return os.path.join(base_path, relative_path)
-
-
-# Procédure pour la consultation des oppositions
-def main():
-    # Délai entre opérations automate. Pour des numéros non entiers il faut utiliser le point pas la virgule
-    delay = 1
-
-    # ########################################
-
-    # ##Saisie du nom utilisateur et mot de passe
-    login = EnterTable4.get()
-    mot_de_passe = EnterTable5.get()
-
-    ## Saisie de numéro de dossier:
-    numeroDossier = EnterTable6.get()
-
-    wd_options = Options()
-
-    wd_options.headless = True
-    wd_options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
-    wd_options.set_preference('detach', True)
-    wd = webdriver.Firefox(options=wd_options)
-    try:
-        wd.get(
-            'http://medoc.ia.dgfip:8141/medocweb/presentation/md2oagt/ouverturesessionagent/ecran/ecOuvertureSessionAgent'
-            '.jsf')
-    except WebDriverException:
-        messagebox.showinfo("Service Interrompu !", "Le service est indisponible\n pour l'instant")
-        wd.close()
-
-    ## Saisir utilisateur
-    ##Saisir utilisateur
-    time.sleep(delay)
-    # script = f'''identifant = document.getElementById('identifiant'); identifiant.setAttribute('type','hidden'); identifiant.setAttribute('value',"{login}");'''
-    script = f'''identifant = document.getElementById('identifiant'); identifiant.setAttribute('type','hidden'); identifiant.setAttribute('value',"youssef.atigui");'''
-    wd.execute_script(script)
-
-    ## Saisie mot de pass
-    time.sleep(delay)
-    # wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
-    wd.find_element(By.ID, 'secret_tmp').send_keys("1")
-
-    time.sleep(delay)
-    wd.find_element(By.ID, 'secret_tmp').send_keys(Keys.RETURN)
-
-    try:
-        WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'ligneServiceHabilitation')))
-    except TimeoutException:
-        messagebox.showinfo("Service Interrompu !", "Le service est indisponible\n pour l'instant")
-        wd.close()
-
-    ## Saisir service
-    wd.find_element(By.ID, 'nomServiceChoisi').send_keys('0070100')
-    time.sleep(delay)
-    wd.find_element(By.ID, 'nomServiceChoisi').send_keys(Keys.TAB)
-
-    ## Saisir habilitation
-    time.sleep(delay)
-    wd.find_element(By.ID, 'habilitation').send_keys('1')
-    time.sleep(delay)
-    wd.find_element(By.ID, 'habilitation').send_keys(Keys.ENTER)
-
-    ## Boucle sur le fichier selon le nombre de lignes indiquées
-
-    ## Création d'un Redevable
-    ## Arriver à la transaction 3-17
-
-    time.sleep(delay)
-    wd.find_element(By.ID, 'inputBmenuxBrmenx07CodeSaisieDirecte').send_keys('3')
-    wd.find_element(By.ID, 'inputBmenuxBrmenx07CodeSaisieDirecte').send_keys(Keys.ENTER)
-    time.sleep(delay)
-    WebDriverWait(wd, 20).until(
-        EC.presence_of_element_located((By.ID, 'bmenuxtableMenus:16:outputBmenuxBrmenx04LibelleLigneProposee')))
-    wd.find_element(By.ID, 'bmenuxtableMenus:16:outputBmenuxBrmenx04LibelleLigneProposee').click()
-
-    ## Saisie numéro de Dossier
-    WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputYrdos211NumeroDeDossier')))
-
-    wd.find_element(By.ID, 'inputYrdos211NumeroDeDossier').send_keys(numeroDossier)
-    wd.find_element(By.ID, 'inputYrdos211NumeroDeDossier').send_keys(Keys.ENTER)
-
-    # try:
-    #     WebDriverWait(wd, 20).until(EC.text_to_be_present_in_element((By.CLASS_NAME, 'ui-messages-error-summary'),
-    #                                                                  'DOSSIER DEJA UTILISE PAR UN AUTRE POSTE  - '
-    #                                                                  'ATTENTE OU ABANDON -                 '))
-    #     showinfo("Affichage opposition", "Le dossier de l'opposant " + numeroDossier + " est déjà utilisé et doit être "
-    #                                                                                    "purgé ")
-    #     WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-    #     wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-    #     wd.quit()
-    # except FileNotFoundError as e:
-    #     print(e)
-    #     msg.showerror('Error in opening file', e)
-    # finally:
-    #     pass
-    # if EC.text_to_be_present_in_element((By.CLASS_NAME, 'ui-messages-error-summary'),
-    #                                                                 'DOSSIER DEJA UTILISE PAR UN AUTRE POSTE  - '
-    #                                                                 'ATTENTE OU ABANDON -                 '):
-    #     showinfo("Affichage opposition", "Le dossier de l'opposant " + numeroDossier + " est déjà utilisé et doit être "
-    #                                                                                    "purgé ")
-    # else:
-    #     pass
-
-    ## Saisie du choix Lister
-    time.sleep(delay)
-    time.sleep(delay)
-    time.sleep(delay)
-    WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputB33gmenuYa33Gch1ChoixCMAI')))
-
-    wd.find_element(By.ID, 'inputB33gmenuYa33Gch1ChoixCMAI').send_keys('I')
-    wd.find_element(By.ID, 'inputB33gmenuYa33Gch1ChoixCMAI').send_keys(Keys.TAB)
-
-    ## Récupération du tableau des oppositions
-    time.sleep(delay)
-    time.sleep(delay)
-    time.sleep(delay)
-
-    currentUrl = wd.current_url
-    compteur = 0
-    k = 0
-    while True:
-        if currentUrl == 'http://medoc.ia.dgfip:8141/medocweb/presentation/transactions/redevable/pa33g/ecran' \
-                         '/Pa33GTx317.jsf':
-            time.sleep(delay)
-            time.sleep(delay)
-            time.sleep(delay)
-            try:
-                globals()[f"webtable_df{k}"] = pd.read_html(
-                    wd.find_element(By.XPATH, '//*[@id="b33GlistLigneOperationPanel"]').get_attribute('outerHTML'))[
-                    1]
-                webtable_df1 = \
-                    pd.read_html(
-                        wd.find_element(By.XPATH, '//*[@id="b33GlistLigneOperationPanel"]').get_attribute('outerHTML'))[
-                        1]
-                time.sleep(delay)
-                time.sleep(delay)
-                time.sleep(delay)
-                # dataTable = pd.concat([globals()[f"webtable_df{k}"]], ignore_index=True)
-                time.sleep(delay)
-                time.sleep(delay)
-                time.sleep(delay)
-                # print("dataTable au tour" + str(k) + ": \n", globals()[f"webtable_df{k}"])
-                last_index = globals()[f"webtable_df{k}"]['Unnamed: 0']
-                index_list = globals()[f"webtable_df{k}"]['Unnamed: 0'].isnull().values.any()
-                if index_list:
-                    print(index_list)
-                    print(last_index)
-                    print(globals()[f"webtable_df{k}"].dtypes)
-                    print("fin: " + str(compteur))
-                    time.sleep(delay)
-                    time.sleep(delay)
-                    WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                    wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                    dataTable = pd.DataFrame()
-                    for k in range(0, compteur + 1):
-                        time.sleep(delay)
-                        time.sleep(delay)
-                        dataTable = dataTable.append([globals()[f"webtable_df{k}"]], ignore_index=True)
-                        # print("dataTable au tour" + str(k + 1) + ": \n", globals()[f"webtable_df{k}"])
-                        time.sleep(delay)
-                        time.sleep(delay)
-                    print("dataTable à la fin: \n", dataTable)
-                    indice = pd.to_numeric(dataTable['Unnamed: 0']).fillna(0).astype(int)
-                    FRP = pd.to_numeric(dataTable['Unnamed: 1']).fillna(0).astype(int)
-                    name = dataTable['Unnamed: 2']
-                    credit = pd.to_numeric(dataTable['Unnamed: 3']).fillna(0)
-                    montant = dataTable['Unnamed: 10']
-                    levee = dataTable['Unnamed: 16']
-                    fields = {'id': indice, 'FRP': FRP, 'DENOMINATION': name, ' CREDIT D\'IMPOT': credit,
-                              'Montant': montant,
-                              'LEVEE': levee}
-                    table = pd.DataFrame(fields)
-                    filename = EnterTable6.get() + '_liste_créances_' + datetime.now().strftime(
-                        '%Y-%m-%d-%H-%M-%S') + '.csv'
-                    table.to_csv(filename, columns=fields, index=FALSE)
-
-                    try:
-                        time.sleep(delay)
-                        time.sleep(delay)
-                        time.sleep(delay)
-                        liste = csv.reader(open(filename), delimiter=',')
-                        tabControl.add(tab3, text='liste des oppositions')
-                        table1 = Table(tab3, dataframe=table, read_only=True, index=FALSE)
-                        table1.place(y=120)
-                        table1.show()
-
-                    except FileNotFoundError as e:
-                        print(e)
-                        msg.showerror('Error in opening file', e)
-                    ## Validation de la sortie du formulaire
-                    time.sleep(delay)
-                    WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                    wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                    wd.quit()
-
-                else:
-                    # time.sleep(delay)
-                    time.sleep(delay)
-                    time.sleep(delay)
-                    if not globals()[f"webtable_df{k}"].empty:
-                        dataTable = pd.concat([globals()[f"webtable_df{k}"]], ignore_index=True)
-                        wd.find_element(By.ID, 'inputB33gnaviY33GnavichChoixSurB33Gnavi').send_keys('S')
-                        wd.find_element(By.ID, 'inputB33gnaviY33GnavichChoixSurB33Gnavi').send_keys(Keys.ENTER)
-                        print("Avant: " + str(compteur))
-                        compteur += 1
-                        k += 1
-                        print("après: " + str(compteur))
-                    else:
-                        WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                        wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                        wd.quit()
-                        showinfo("Affichage opposition",
-                                 "L'opposant " + numeroDossier + " n'a pas d'opposition en cours ")
-            except:
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.quit()
-                showinfo("Affichage opposition", "L'opposant " + numeroDossier + " n'a pas d'opposition en cours ")
-                break
-
-    # finally:
-    #     WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-    #     wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-    #     wd.quit()
-    #     showinfo("Affichage opposition", "L'opposant " + numeroDossier + " n'a pas d'opposition en cours ")
 
 
 def create_opposition(headless):
@@ -309,7 +81,6 @@ def create_opposition(headless):
     source_rep = os.getcwd()
     filename1 = 'donnees_creation_opposition_sortie' + datetime.now().strftime('_%Y-%m-%d') + '.ods'
     filepath1 = source_rep + '/donnees_sortie/donnees_sortie' + datetime.now().strftime('_%Y-%m-%d') + '/' + filename1
-    # df = pd.read_excel(File_path)
     print("filepath1: \n", filepath1)
     print("----------------------------------------------------------------------------")
     match os.path.isfile(filepath1):
@@ -322,7 +93,6 @@ def create_opposition(headless):
             donnees_creation_opposition["Dossiers traités"] = ""
             print("dataframe des données d'entrée : \n", donnees_creation_opposition)
             print("----------------------------------------------------------------------------")
-            # Enlever les données manquantes du fichier d'entrée
             taille_donnee_entree = donnees_creation_opposition.shape[0]
             print("Taille des données d'entrées :  \n", taille_donnee_entree)
             print("----------------------------------------------------------------------------")
@@ -353,25 +123,6 @@ def create_opposition(headless):
             print("nb ligne sortie 1: \n", nb_ligne)
             print("Les données initiales à ne pas utiliser: \n", old_data)
             print("Les données initiales: \n", data)
-
-            # join = pd.concat([donnees_creation_opposition, donnees_creation_opposition_sortie])
-            # print("la fusion : \n", join["Réf jugement validité = réf SATD"])
-            # print("----------------------------------------------------------------------------")
-            # old_data = donnees_creation_opposition_sortie[(donnees_creation_opposition_sortie['Dossiers traités'] == 'X') | (
-            #         donnees_creation_opposition_sortie['Données manquantes'] == '∅')].values.tolist()
-            # all_old_data_list = donnees_creation_opposition_sortie["Réf jugement validité = réf SATD"].values.tolist()
-            # print("liste des données", old_data)
-            # print("----------------------------------------------------------------------------")
-            # result = join[-join["Réf jugement validité = réf SATD"].isin(all_old_data_list)]
-            # print("résultat de la jointure : ",result)
-            # print("----------------------------------------------------------------------------")
-            # data = donnees_creation_opposition_sortie[(donnees_creation_opposition_sortie['Dossiers traités'] != 'X') & (
-            #         donnees_creation_opposition_sortie['Données manquantes'] != '∅')]
-            # data = pd.concat([data, result], ignore_index=True).values.tolist()
-            # nb_ligne = len(data)
-            # print("nb ligne sortie 1: ", nb_ligne)
-            # print("Les données initiales à ne pas utiliser: ", old_data)
-            # print("Les données initiales: ", data)
         case False:
             donnees_creation_opposition_sortie = pe.get_data(File_path)
             print("Mauvaise sortie")
@@ -1036,95 +787,7 @@ def create_opposition(headless):
     wd.quit()
 
 
-# Procédure de purge
-def purge():
-    # Délai entre opérations automate. Pour des numéros non entiers il faut utiliser le point pas la virgule
-    delay = 1
-
-    # ##Saisie du nom utilisateur et mot de passe
-    login = EnterTable4.get()
-    mot_de_passe = EnterTable5.get()
-
-    ## Saisie de numéro de dossier:
-    numeroDossier = EnterTable6.get()
-
-    wd_options = Options()
-
-    # wd_options.headless = True
-
-    # wd_options.set_preference('detach', True)
-    # wd = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=wd_options)
-    wd_options.headless = False
-    wd_options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
-    wd_options.set_preference('detach', True)
-    try:
-        wd = webdriver.Firefox(options=wd_options)
-    except WebDriverException:
-        messagebox.showinfo("Service Interrompu !", "Votre système rencontre des difficultés à afficher le navigateur")
-
-    url = 'http://media.ira.appli.impots/mediamapi/index.xhtml'
-    try:
-        wd.get(url)
-
-    except WebDriverException:
-        messagebox.showinfo("Service Interrompu !", "Le service est indisponible\n pour l'instant")
-        wd.close()
-
-    ## Saisir utilisateur
-    ##Saisir utilisateur
-    time.sleep(delay)
-    # script = f'''identifant = document.getElementById('identifiant'); identifiant.setAttribute('type','hidden');
-    # identifiant.setAttribute('value',"{login}");'''
-    try:
-        script = f'''identifant = document.getElementById('identifiant'); identifiant.setAttribute('type','hidden'); 
-        identifiant.setAttribute('value',"youssef.atigui");'''
-        wd.execute_script(script)
-    except WebDriverException:
-        messagebox.showinfo("Service Interrompu !", "Votre système rencontre des difficultés à afficher le navigateur")
-        wd.close()
-    ## Saisie mot de pass
-    time.sleep(delay)
-    # wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
-    wd.find_element(By.ID, 'secret_tmp').send_keys("1")
-
-    time.sleep(delay)
-    wd.find_element(By.ID, 'secret_tmp').send_keys(Keys.RETURN)
-
-    # try:
-    #     WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'ligneServiceHabilitation')))
-    # except TimeoutException:
-    #     messagebox.showinfo("Service Interrompu !", "Le service est indisponible\n pour l'instant")
-    #     wd.close()
-    WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'j_idt146:j_idt147')))
-    menu_list = wd.find_element(By.ID, "j_idt146:j_idt147")
-    a = ActionChains(wd, 100)
-    WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="j_idt146:j_idt147"]/ul/li[1]')))
-    service = wd.find_element(By.XPATH, '//*[@id="j_idt146:j_idt147"]/ul/li[1]')
-    a.move_to_element(service).perform()
-    time.sleep(1)
-    purge_link_script = "document.evaluate('//*[@id=\"j_idt146:j_idt147\"]/ul/li[1]/ul/li[4]/a',document,null," \
-                        "XPathResult.FIRST_ORDERED_NODE_TYPE,null,).singleNodeValue.click()"
-    wd.execute_script(purge_link_script)
-
-    try:
-        WebDriverWait(wd, 20).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'zone_validation')))
-        purge_input = wd.find_element(By.CLASS_NAME, 'zone_validation')
-        purge_input.click()
-        nombre_de_verrou = wd.find_element(By.ID, 'formPurgerVerrouResultat:verrouPurger').text
-
-        messagebox.showinfo("Purge", f"La purge a été opérée. \n {nombre_de_verrou} \n Vous pouvez "
-                                     f"reprendre la création des oppositions. ")
-        wd.close()
-    except WebDriverException:
-        messagebox.showinfo("Purge", "La purge n'a pas pu être effectuée ")
-        wd.close()
-
-
-## TODO SATD-jj-mm-yy.ods
-
-
-# Procédure pour
+# Procédure pour l'ouverture des fichiers d'entrées
 def open_file():
     global File_path
     global l1
@@ -1160,29 +823,7 @@ def open_file():
         sub_df1 = df1[df1['Dossiers traités'] == 'X']
         print("le dataframe contenant les lignes déjà faites: \n", sub_df1)
         print("----------------------------------------------------------------------------")
-        # if len(sub_df1) == 0:
-        # messagebox.showinfo("Création d'opposition", "Aucune opération n'a été effectué pour l'instant !")
-        # elif min(df.index[df1['Dossiers traités'] == 'X'].tolist()) != 0 & min(df.index[df1['Dossiers traités'] == 'X'].tolist()):
-        #     premiere_partie = 'La première opposition du fichier n\'a pas été enregistré' if min(
-        #         df.index[df1['Dossiers traités'] == 'X'].tolist()) == 1 else 'Les ' + str(min(
-        #         df.index[df1['Dossiers traités'] == 'X'].tolist()) + 1) + 'premières oppositions du fichier n\'ont pas été ' \
-        #                                                       'enregistrées '
-        #     messagebox.showwarning(
-        #         "Création d'opposition", 'Vous avez déjà un fichier de sortie qui contient ' + str(nb_ligne1) + ' ligne'
-        #                                  + s + '.\n Une opération de création d\'opposition à déjà été lancée, '
-        #                                        'l\'opération \n s\'est arrêtée à la ligne '
-        #                                  + str(min(df.index[df1['Dossiers traités'] == 'X'].tolist()) + 1) + '.\n'
-        #                                  + premiere_partie)
-        #     print('Vous avez déjà un fichier de sortie qui contient ' + str(nb_ligne1) + ' ligne' + s +
-        #           '.\n Une opération de création d\'opposition à déjà été lancée, l\'opération \n s\'est arrêtée à la '
-        #           'ligne '
-        #           + str(min(df.index[df1['Dossiers traités'] == 'X'].tolist()) + 1) + '.\n'
-        #           + premiere_partie
-        #           )
         if len(sub_df1) - len(df) != 0:
-            # response = messagebox.askyesno(
-            #     "Création d'opposition", "Vous avez déjà effectué les opérations sur ce fichier. Mais plusieurs lignes"
-            #                              " n'ont pas été enregistré. \n")
             response = messagebox.askyesno(
                 "Création d'opposition", "Le fichier a déjà été traité par l'automate, à l'exception d'une ou "
                                          "plusieurs SATD identifiée(s) par les symboles \"X, ∅, \U0001F512\" en "
@@ -1218,7 +859,8 @@ def open_file():
     #     messagebox.showinfo("Création d'opposition", "Aucune opération n'a été effectué pour l'instant !")
     file.close()
     for i in range(df.shape[0]):
-        if df.loc[i].isnull().any():
+        last_colonne = "Numéro et date de l'opération de dépense effectuée dans Médoc pour paiement du poste comptable RNF ayant émis la SATD "
+        if df.drop(columns=[last_colonne]).loc[i].isnull().any():
             message = "la ligne {} du tableau comporte une ou plusieurs données obligatoires manquantes.\n Cette " \
                       "ligne ne sera pas traitée et sera marquée dans la colonne \"Dossiers traités\" par le symbole " \
                       "\"∅\". \n Vous pouvez renseigner les champs manquants avant de lancer l'automate.".format(i + 1)
@@ -1246,16 +888,13 @@ label1 = Label(tab1, text='Afficher la liste des oppositions', font=('Arial', 15
                relief="sunken")
 label1.place(x=400, y=paramx)
 
-creancierButton = Button(tab1, text='Afficher la liste', command=main)
-creancierButton.place(x=paramx + 240, y=paramy + 40)
-
 tab2 = Frame(tabControl, bg='#E3EBD0')
 label2 = Label(tab2, text='Créer des oppositions', font=('Arial', 15), fg='Black', bg='#ffffff', relief="sunken")
 label2.place(x=400, y=paramx)
 # tabControl.add(tab1, text='Liste des oppositions')
 # tabControl.add(tab2, text='Création des oppositions')
 tabControl.pack(expand=1, fill="both")
-tab6 = Frame(tabControl, bg='#E3EBD0')
+tab6 = Frame(tabControl, bg='#F1F1D3')
 tabControl.add(tab6, text='Automate SATD DGE')
 tabControl.pack(expand=1, fill="both")
 tab3 = Frame(tabControl, bg='#E3EBD0')
@@ -1280,18 +919,25 @@ EnterTable7 = StringVar()
 EnterTable8 = StringVar()
 EnterTable9 = StringVar()
 EnterTable10 = StringVar()
+buttonFont = font.Font(family='Tahoma', size=15)
+question = '\U0000003F'
 
+lexique = "Précisions sur le symbole affiché en \"Dossiers traités\" :" \
+          "\n● Le symbole \"X\" indique que la SATD a été traitée jusqu'à la mainlevée." \
+          "\n● Le symbole \"∅\" indique que une ou des données obligatoires sont manquantes sur la ligne, ce qui ne " \
+          "permet pas de traiter la SATD. Il convient de compléter la ou les données manquantes avant d'exécuter de " \
+          "nouveau l'automate pour traiter la SATD concernée." \
+          "\n● Le symbole \"cadenas\" indique que le dossier FRP de l'opposé est verrouillé dans MEDOC. Il convient " \
+          "d'attendre un délai de 45 minutes avant d'exécuter de nouveau l'automate pour traiter la SATD concernée."
+lexiqueButton = Button(Interface, bg="#E3EBD0", text=question, font=buttonFont,
+                       command=lambda: messagebox.showinfo("Lexique", lexique))
+lexiqueButton.place(x=250, y=paramy + 60)
 labelNumeroDossier = Label(tab1, text='Numéro Dossier Opposant:', relief="sunken")
 labelNumeroDossier.place(x=250, y=paramy - 30)
 entryNumeroDossier = Entry(tab1, textvariable=EnterTable6, justify='center')
 entryNumeroDossier.place(width=225, x=paramx + 490, y=paramy - 30)
-lexique = "Lexique : \n    ● Le symbole 'X' indique que la ligne a été traitée avec succès.\n    ● Le " \
-          "symbole '∅' indique que des données obligatoires sont manquantes sur la ligne en question. \n    ● Le " \
-          "symbole '\U0001F512' indique que le dossier de la ligne en question et verrouillé, la ligne pourra " \
-          "être retraitée dans un délai de 45 minutes.\n Pour traitées les lignes comportant des anomalies, " \
-          "vous avez juste à relancé l’automates une fois les anomalies résolues. "
-labelLexique = Label(tab6, text=lexique, relief="sunken", wraplength=500, justify=LEFT)
-labelLexique.place(x=250, y=paramy + 235)
+# labelLexique = Label(tab6, text=lexique, relief="sunken", wraplength=500, justify=LEFT)
+# labelLexique.place(x=250, y=paramy + 235)
 
 creerOpposition = Button(tab2, text='Créer les Oppositions avec navigateur',
                          command=lambda: create_opposition(headless=False))
@@ -1305,9 +951,6 @@ label4 = Label(tab2, text='Saisir le nombre de lignes à traiter: ', relief="sun
 label4.place(x=paramx + 240, y=paramy + 105)
 entry3 = Entry(tab2, textvariable=EnterTable3, justify='center')
 entry3.place(width=225, x=paramx + 490, y=paramy + 105)
-
-purge_button = Button(tab2, text='Purger', command=purge)
-purge_button.place(x=paramx + 240, y=paramy + 200)
 
 browser_button = Button(tab2, text='Créer les Oppositions sans navigateur !',
                         command=lambda: create_opposition(headless=True))
@@ -1356,10 +999,10 @@ label_path6.place(x=paramx + 490, y=paramy - 30)
 # purge_label = Label(tab6, text="A utiliser en cas d'arrêt inattendu de l'automate en cours d'utilisation !",
 #                     relief="sunken")
 # purge_label.place(x=paramx + 340, y=paramy + 50)
-browser_button = Button(tab6, bg="#82CFD8", text='Créer les Oppositions sans visualisation des transactions',
+browser_button = Button(tab6, bg="#C7DDC5", text='Créer les Oppositions sans visualisation des transactions',
                         command=lambda: create_opposition(headless=True))
 browser_button.place(x=paramx + 240, y=paramy + 100)
-creerOpposition = Button(tab6, bg="#007FA9", text='Créer les Oppositions avec visualisation des transactions',
+creerOpposition = Button(tab6, bg="#9FCDA8", text='Créer les Oppositions avec visualisation des transactions',
                          command=lambda: create_opposition(headless=False))
 creerOpposition.place(x=paramx + 240, y=paramy + 150)
 
