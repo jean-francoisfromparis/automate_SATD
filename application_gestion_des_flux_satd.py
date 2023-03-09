@@ -90,7 +90,6 @@ def create_opposition(headless):
             donnees_creation_opposition["Numéro d'Opération"] = ""
             donnees_creation_opposition["Date d'exécution"] = ""
             donnees_creation_opposition["Dossiers traités"] = ""
-            donnees_creation_opposition["Dossiers traités"] = ""
             print("dataframe des données d'entrée : \n", donnees_creation_opposition)
             print("----------------------------------------------------------------------------")
             taille_donnee_entree = donnees_creation_opposition.shape[0]
@@ -136,26 +135,33 @@ def create_opposition(headless):
 
             nb_ligne = donnees_creation_opposition.shape[0]
             ligne_incomplete = list()
+            satd_manuelle = list()
+            last_column = "Numéro et date de l'opération de dépense effectuée dans Médoc pour paiement du poste " \
+                          "comptable RNF ayant émis la SATD "
+            donnees_creation_opposition['comparaison'] = donnees_creation_opposition.apply(lambda x: True if x[6] <= x[7] else False, axis=1)
+            print("ligne 142", donnees_creation_opposition['comparaison'])
             for i in range(nb_ligne):
-                if donnees_creation_opposition.loc[i].isnull().any() or \
+                # print()
+                if donnees_creation_opposition.drop(columns=[last_column, 'comparaison']).loc[i].isnull().any() or \
                         donnees_creation_opposition["Date d’effet = date réception SATD"].loc[i] == 'NaT':
                     ligne_incomplete.append('∅')
+                elif donnees_creation_opposition['comparaison'].loc[i] == True:
+                    ligne_incomplete.append("M")
                     # print(ligne_incomplete)
                 else:
                     ligne_incomplete.append('')
-                    # print(ligne_incomplete)
+                    # print(donnees_creation_opposition.iloc[:, [7]])
             donnees_creation_opposition["Dossiers traités"] = ligne_incomplete
-            print(ligne_incomplete)
-            # donnees_creation_opposition.insert(loc=5, column='Lignes non traitées', value=ligne_incomplete)
-            # print("type de données: ", donnees_creation_opposition)
-            old_data = donnees_creation_opposition[donnees_creation_opposition["Dossiers traités"] == '∅'].values \
+            print("ligne incomplete : ", ligne_incomplete)
+
+            old_data = donnees_creation_opposition[(donnees_creation_opposition["Dossiers traités"] == '∅') | (donnees_creation_opposition["Dossiers traités"] == 'M')].values \
                 .tolist()
             print("les données non gardé ligne 346 \n", old_data)
-            data = donnees_creation_opposition[donnees_creation_opposition["Dossiers traités"] != '∅'].values.tolist()
+            data = donnees_creation_opposition[(donnees_creation_opposition["Dossiers traités"] != '∅') & (donnees_creation_opposition["Dossiers traités"] != 'M')].values.tolist()
             print("les données d'entrée ligne 347 \n", data)
             nb_ligne = len(data)
             print(nb_ligne)
-    # exit()
+    exit()
     print("les données d'entrée ligne 373 \n", data)
     # df = pd.DataFrame(
     #     columns=["Indice", "FRP société", "FRP opposant", "Montant", "Date d’effet = date réception SATD",
@@ -193,13 +199,13 @@ def create_opposition(headless):
     wd = webdriver.Firefox(options=wd_options)
     # wd = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=wd_options)
     ## TODO Passer au service object
-    # wd.get(
-    #     'https://portailmetierpriv.ira.appli.impots/cas/login?service=http%3A%2F%2Fmedoc.ia.dgfip%3A8141%2Fmedocweb'
-    #     '%2Fcas%2Fvalidation')  # adresse MEDOC DGE
-
     wd.get(
-        'http://medoc.ia.dgfip:8121/medocweb/presentation/md2oagt/ouverturesessionagent/ecran'
-        '/ecOuvertureSessionAgent.jsf')  # adresse MEDOC Classic
+        'https://portailmetierpriv.ira.appli.impots/cas/login?service=http%3A%2F%2Fmedoc.ia.dgfip%3A8141%2Fmedocweb'
+        '%2Fcas%2Fvalidation')  # adresse MEDOC DGE
+
+    # wd.get(
+    #     'http://medoc.ia.dgfip:8121/medocweb/presentation/md2oagt/ouverturesessionagent/ecran'
+    #     '/ecOuvertureSessionAgent.jsf')  # adresse MEDOC Classic
     ##Saisir utilisateur
     time.sleep(delay)
     # script = f'''identifant = document.getElementById('identifiant'); identifiant.setAttribute('type','hidden'); identifiant.setAttribute('value',"{login}");'''
@@ -220,8 +226,8 @@ def create_opposition(headless):
         messagebox.showinfo("Service Interrompu !", "Le service est indisponible\n pour l'instant")
         wd.close()
     ## Saisir service
-    # wd.find_element(By.ID, 'nomServiceChoisi').send_keys('0070100')  # FRP MEDOC DGE
-    wd.find_element(By.ID, 'nomServiceChoisi').send_keys('6200100')
+    wd.find_element(By.ID, 'nomServiceChoisi').send_keys('0070100')  # FRP MEDOC DGE
+    # wd.find_element(By.ID, 'nomServiceChoisi').send_keys('6200100')
     time.sleep(delay)
     wd.find_element(By.ID, 'nomServiceChoisi').send_keys(Keys.TAB)
 
@@ -650,7 +656,7 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
 
-        ## Saisie de la fin de saisie
+        ## Saisie de la fin de la phase 1bis
         try:
             time.sleep(delay)
             WebDriverWait(wd, 20).until(
@@ -666,19 +672,41 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
 
-        ## Validation de la sortie du formulaire
-        # try:
-        #     time.sleep(delay)
-        #     WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-        #     wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-        # except:
-        #     progressbar_label.destroy()
-        #     WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-        #     messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-        #     messagebox.showinfo("Service Interrompu !", messages)
-        #     WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-        #     wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-        #     wd.close()
+        ## Début de la phase 2
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+
+        ## Saisie de la transaction 21-2
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 10).until(
+                EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
+            wd.find_element(By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi').send_keys('2')
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputBmenuxBrmenx062ECaractere').send_keys('1')
+            time.sleep(delay)
+            WebDriverWait(wd, 10).until(
+                EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
+            wd.find_element(By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi').send_keys('2')
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        exit()
 
         ## Marquage tâche faîte dans le fichier
         match os.path.isfile(filepath1):
@@ -695,8 +723,8 @@ def create_opposition(headless):
                 print("inscription des données ligne 936", data)
         print("le N° de ligne est  à la ligne 937:", j)
 
-        ## Incrementation ProgressBar
 
+        ## Incrementation ProgressBar
         pb['value'] += 90 / nb_ligne
         progressbar_label.destroy()
         tab6.update()
@@ -857,7 +885,6 @@ def open_file():
 
     # else:
     #     messagebox.showinfo("Création d'opposition", "Aucune opération n'a été effectué pour l'instant !")
-    file.close()
     for i in range(df.shape[0]):
         last_colonne = "Numéro et date de l'opération de dépense effectuée dans Médoc pour paiement du poste comptable RNF ayant émis la SATD "
         if df.drop(columns=[last_colonne]).loc[i].isnull().any():
@@ -923,12 +950,15 @@ buttonFont = font.Font(family='Tahoma', size=15)
 question = '\U0000003F'
 
 lexique = "Précisions sur le symbole affiché en \"Dossiers traités\" :" \
-          "\n● Le symbole \"X\" indique que la SATD a été traitée jusqu'à la mainlevée." \
-          "\n● Le symbole \"∅\" indique que une ou des données obligatoires sont manquantes sur la ligne, ce qui ne " \
-          "permet pas de traiter la SATD. Il convient de compléter la ou les données manquantes avant d'exécuter de " \
-          "nouveau l'automate pour traiter la SATD concernée." \
-          "\n● Le symbole \"cadenas\" indique que le dossier FRP de l'opposé est verrouillé dans MEDOC. Il convient " \
-          "d'attendre un délai de 45 minutes avant d'exécuter de nouveau l'automate pour traiter la SATD concernée."
+          "\n● Le symbole \"\u2713\" indique que la SATD a été traitée jusqu'à la mainlevée." \
+          "\n● Le symbole \"∅\" indique qu'une ou plusieurs données obligatoires sont manquantes sur la ligne, ce qui "\
+          "ne permet pas de traiter la SATD. Il convient de compléter la ou les données manquantes avant d'exécuter de"\
+          " nouveau l'automate pour traiter la SATD concernée." \
+          "\n● Le symbole \"\U0001F512\" indique que le dossier FRP de l'opposé est verrouillé dans MEDOC. Il convient"\
+          " d'attendre un délai de 45 minutes avant d'exécuter de nouveau l'automate pour traiter la SATD concernée. " \
+          "\n● Le symbole \"M\" indique que l'automate n'est pas en mesure de traiter la SATD. Le traitement doit " \
+          "être effectué manuellement. "
+
 lexiqueButton = Button(Interface, bg="#E3EBD0", text=question, font=buttonFont,
                        command=lambda: messagebox.showinfo("Lexique", lexique))
 lexiqueButton.place(x=250, y=paramy + 60)
