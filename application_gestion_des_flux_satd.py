@@ -16,6 +16,7 @@ from pandastable import Table
 from pyexcel_ods import save_data
 from pynput.keyboard import Controller
 from selenium import webdriver
+import selenium
 from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -79,7 +80,7 @@ def create_opposition(headless):
     ## de dictionnaire.
     donnees_creation_opposition = pe.get_data(File_path)
     source_rep = os.getcwd()
-    filename1 = 'donnees_creation_opposition_sortie' + datetime.now().strftime('_%Y-%m-%d') + '.ods'
+    filename1 = 'donnees_sortie_sortie' + datetime.now().strftime('_%Y-%m-%d') + '.ods'
     filepath1 = source_rep + '/donnees_sortie/donnees_sortie' + datetime.now().strftime('_%Y-%m-%d') + '/' + filename1
     print("filepath1: \n", filepath1)
     print("----------------------------------------------------------------------------")
@@ -202,6 +203,7 @@ def create_opposition(headless):
     wd_options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
     wd_options.set_preference('detach', True)
     wd = webdriver.Firefox(options=wd_options)
+    # wd = webdriver.Edge(r"msedgedriver.exe")
     # wd = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=wd_options)
     ## TODO Passer au service object
     wd.get(
@@ -277,7 +279,7 @@ def create_opposition(headless):
     while True:
         print("N° de ligne à la ligne 510: ", j)
         source_rep = os.getcwd()
-        destination_rep = source_rep + '/archive_SATD/archive' + datetime.now().strftime('_%Y-%m-%d')
+        destination_rep = source_rep + '/archives_SATD/archive' + datetime.now().strftime('_%Y-%m-%d')
         num_of_secs = 60
         m, s = divmod(num_of_secs * (nb_ligne + 1), 60)
         min_sec_format = '{:02d}:{:02d}'.format(m, s)
@@ -712,7 +714,7 @@ def create_opposition(headless):
             wd.close()
 
         # Création affaire service au code R17 "7055"
-        # Saisir la nature "AFF" pour debit 473-0
+        # Saisie de la nature "AFF" pour debit 473-0
         try:
             time.sleep(delay)
             WebDriverWait(wd, 20).until(
@@ -833,8 +835,12 @@ def create_opposition(headless):
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01SValidationOperateur')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys('O')
             wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys(Keys.ENTER)
-            print("pas 7 - ligne 836")
-        except:
+            # WebDriverWait(wd, 20).until(
+            #     EC.presence_of_element_located((By.ID, 'inputBcaff12Bcaff121ValidationON')))
+            # wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys('O')
+            # wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys(Keys.ENTER)
+            print("pas 7 - ligne 840")
+        except TimeoutException:
             progressbar_label.destroy()
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
             messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
@@ -846,6 +852,7 @@ def create_opposition(headless):
         # Saisir le numéro du compte 477-0
         try:
             time.sleep(delay)
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI').send_keys(Keys.ENTER)
@@ -855,7 +862,7 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx').send_keys('477-0')
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx').send_keys(Keys.ENTER)
             print("pas 8 - ligne 857")
-        except:
+        except TimeoutException:
             progressbar_label.destroy()
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
             messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
@@ -897,15 +904,16 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
 
-        # Saisir le montant X
+        # Saisie du montant X
         try:
             time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(
                 data[j][7])
+            time.sleep(delay)
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(Keys.ENTER)
-            print("pas 11 - ligne 908")
+            print("pas 11 - ligne 909")
         except:
             progressbar_label.destroy()
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
@@ -915,33 +923,38 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
 
-            # Saisir la date
-            # Capture et réutilisation de la date journée comptable
-            # Saisir la date
-            # Capture et réutilisation de la date journée comptable
-            try:
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'PDATCPT_dateJourneeComptable')))
-                djc_capture = wd.find_element(By.ID, 'PDATCPT_dateJourneeComptable').text
-                djc = djc_capture.split('/')
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation').send_keys(djc[0])
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation').send_keys(djc[1])
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation').send_keys(djc[2])
-                print("pas 12 - ligne 936")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Saisie la date comptable
+        # Capture et réutilisation de la date journée comptable
+        try:
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'PDATCPT_dateJourneeComptable')))
+            djc_capture = wd.find_element(By.ID, 'PDATCPT_dateJourneeComptable').text
+            djc = djc_capture.split('/')
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation')))
+            # wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation').send_keys(djc[0])
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation').send_keys(Keys.ENTER)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation')))
+            # wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation').send_keys(djc[1])
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation').send_keys(Keys.ENTER)
+            # WebDriverWait(wd, 40).until(
+            #     EC.presence_of_element_located((By.ID, 'affichageBandeauxDynamique:2:repeatBcimp01:0'
+            #                                            ':inputBcimp01Ycimp016AnneeDateImputation')))
+            # wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation').send_keys(djc[2])
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation').send_keys(Keys.ENTER)
+            # time.sleep(delay)
+            # wd.find_element(By.XPATH, '//*[@id="repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation"]').send_keys(
+            #     Keys.ENTER)
+            print("pas 12 - ligne 936")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
         # Saisie du numéro d'affaire
         try:
@@ -960,12 +973,15 @@ def create_opposition(headless):
 
         # Saisie le numéro de dossier
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff03Bcaff032RedevServOuRlce')))
             wd.find_element(By.ID, 'inputBcaff03Bcaff032RedevServOuRlce').send_keys('REDEV')
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff03Bcaff036Car2A7NuordNumDos')))
             wd.find_element(By.ID, 'inputBcaff03Bcaff036Car2A7NuordNumDos').send_keys(data[j][0])
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff03Bcaff038Cplnum')))
             wd.find_element(By.ID, 'inputBcaff03Bcaff038Cplnum').send_keys('0')
@@ -982,14 +998,16 @@ def create_opposition(headless):
 
         # Saisie du libellé
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff03LaffAffLibelleAffaire')))
             wd.find_element(By.ID, 'inputBcaff03LaffAffLibelleAffaire').send_keys(
                 data[j][8] + " /" + data[j][4])
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff03LaffAffLibelleAffaire')))
             wd.find_element(By.ID, 'inputBcaff03LaffAffLibelleAffaire').send_keys(Keys.ENTER)
-            print("pas 15 - ligne 992")
+            print("pas 15 - ligne 1000")
         except:
             progressbar_label.destroy()
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
@@ -1001,18 +1019,21 @@ def create_opposition(headless):
 
         # Saisir le code R27 "7055"
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi').send_keys(Keys.ENTER)
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Cr17R27CodeR17OuR27')))
             wd.find_element(By.ID, 'inputBcaff01Cr17R27CodeR17OuR27').send_keys('7055')
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01RMontantSaisi')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01RMontantSaisi').send_keys(data[j][7])
             wd.find_element(By.ID, 'inputBcaff01Bcaff01RMontantSaisi').send_keys(Keys.ENTER)
             WebDriverWait(wd, 20).until(
-                EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01RMontantSaisi')))
+                EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01SValidationOperateur')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys('O')
             print("pas 16 - ligne 1017")
         except:
@@ -1027,7 +1048,7 @@ def create_opposition(headless):
         # Validation de la transaction
         try:
             WebDriverWait(wd, 20).until(
-                EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi')))
+                EC.presence_of_element_located((By.ID, 'inputBcvim01Ycvim013ReponseOperateur')))
             wd.find_element(By.ID, 'inputBcvim01Ycvim013ReponseOperateur').send_keys('O')
             print("pas 17 - ligne 1032")
         except:
@@ -1138,7 +1159,7 @@ def create_opposition(headless):
             time.sleep(delay)
             WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputBcvcs03Ycvcs014DemandeSuite')))
             wd.find_element(By.ID, 'inputBcvcs03Ycvcs014DemandeSuite').send_keys('S')
-            print("pas 23 - ligne 1142")
+            print("pas 23 - ligne 1152")
         except:
             progressbar_label.destroy()
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
@@ -1151,7 +1172,7 @@ def create_opposition(headless):
         # Fin de la transaction 21-2 et retour à la page d'accueil
         WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputBcvcs03Ycvcs014DemandeSuite')))
         wd.find_element(By.ID, 'barre_outils:image_f2').click()
-        print("pas 24 - ligne 1155")
+        print("pas 24 - ligne 1173")
 
         # Saisir la transaction 21-2
         ## Saisie de la transaction 21-2
@@ -1166,7 +1187,27 @@ def create_opposition(headless):
             WebDriverWait(wd, 10).until(
                 EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
             wd.find_element(By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi').send_keys('2')
-            print("pas 25 - ligne 1170")
+            print("pas 25 - ligne 1188")
+        except TimeoutException:
+            progressbar_label.destroy()
+            # WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            # messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messages = "Une erreur inattendu"
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+
+        # Création affaire service au code R27 "8755"
+        # Saisir la nature "AFF" pour debit 473-0
+        # Saisir la nature "AFF" pour crédit 477-0
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys('AFF')
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys(Keys.ENTER)
+            print("pas 26 - ligne 1199")
         except:
             progressbar_label.destroy()
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
@@ -1176,327 +1217,318 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
 
-            # Création affaire service au code R27 "8755"
-            # Saisir la nature "AFF" pour debit 473-0
-            # Saisir la nature "AFF" pour crédit 477-0
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys('AFF')
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys(Keys.ENTER)
-                print("pas 26 - ligne 1189")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Saisie du type de montant
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF').send_keys(Keys.ENTER)
+            print("pas 27 - ligne 1215")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Saisie du type de montant
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF').send_keys(Keys.ENTER)
-                print("pas 27 - ligne 1189")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Saisie du montant X
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(
+                data[j][7])
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(
+                Keys.ENTER)
+            print("pas 28 - ligne 1226")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Saisie du montant X
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(
-                    data[j][7])
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(
-                    Keys.ENTER)
-                print("pas 28 - ligne 1226")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Saisir une identification
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located(
+                    (By.ID, 'repeatBcimp01:0:inputBciddepPc8IdentIndentificationBeneficiaireDep')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBciddepPc8IdentIndentificationBeneficiaireDep').send_keys(
+                data[j][8])
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBciddepPc8IdentIndentificationBeneficiaireDep').send_keys(
+                Keys.ENTER)
+            print("pas 29 - ligne 1244")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Saisir une identification
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located(
-                        (By.ID, 'repeatBcimp01:0:inputBciddepPc8IdentIndentificationBeneficiaireDep')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBciddepPc8IdentIndentificationBeneficiaireDep').send_keys(
-                    data[j][8])
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBciddepPc8IdentIndentificationBeneficiaireDep').send_keys(
-                    Keys.ENTER)
-                print("pas 29 - ligne 1244")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Saisir le numéro d'affaire créée précédemment
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputBcaff03Nuaff1NumeroAffaire')))
+            wd.find_element(By.ID, 'inputBcaff03Nuaff1NumeroAffaire').send_keys(liste_temporaire_data[3])
+            print("pas 30 - ligne 1260")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Saisir le numéro d'affaire créée précédemment
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'inputBcaff03Nuaff1NumeroAffaire')))
-                wd.find_element(By.ID, 'inputBcaff03Nuaff1NumeroAffaire').send_keys(liste_temporaire_data[3])
-                print("pas 30 - ligne 1260")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Confirmer le libelle de l'affaire
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputBcaff03LaffAffLibelleAffaire')))
+            wd.find_element(By.ID, 'inputBcaff03LaffAffLibelleAffaire').send_keys(Keys.ENTER)
+            print("pas 31 - ligne 1276")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Confirmer le libelle de l'affaire
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'inputBcaff03LaffAffLibelleAffaire')))
-                wd.find_element(By.ID, 'inputBcaff03LaffAffLibelleAffaire').send_keys(Keys.ENTER)
-                print("pas 31 - ligne 1276")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Saisir le code R27 "8755"
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi')))
+            wd.find_element(By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi').send_keys(Keys.ENTER)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01RMontantSaisi')))
+            wd.find_element(By.ID, 'inputBcaff01Bcaff01RMontantSaisi').send_keys(Keys.ENTER)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01SValidationOperateur')))
+            wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys('O')
+            print("pas 32 - ligne 1298")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Saisir le code R27 "8755"
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi')))
-                wd.find_element(By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi').send_keys(Keys.ENTER)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01RMontantSaisi')))
-                wd.find_element(By.ID, 'inputBcaff01Bcaff01RMontantSaisi').send_keys(Keys.ENTER)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01SValidationOperateur')))
-                wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys('O')
-                print("pas 32 - ligne 1298")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Répondre à la question "Soldez-vous l'affaire ?"
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputBcaff12Bcaff121ValidationON')))
+            wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys('O')
+            print("pas 33 - ligne 1314")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Répondre à la question "Soldez-vous l'affaire ?"
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'inputBcaff12Bcaff121ValidationON')))
-                wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys('O')
-                print("pas 33 - ligne 1314")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Valider CREDIT
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI').send_keys(Keys.ENTER)
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx').send_keys('512-96')
+            print("pas 34 - ligne 1346")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Valider CREDIT
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI').send_keys(Keys.ENTER)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx').send_keys('512-96')
-                print("pas 34 - ligne 1333")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Saisir la nature "OVIRT"
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys('OVIRT')
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys(Keys.ENTER)
+            print("pas 35 - ligne 1352")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Saisir la nature "OVIRT"
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys('OVIRT')
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys(Keys.ENTER)
-                print("pas 35 - ligne 1352")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Saisir ENTREE pour type de montant
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF').send_keys(Keys.ENTER)
+            print("pas 36 - ligne 1368")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Saisir ENTREE pour type de montant
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF').send_keys(Keys.ENTER)
-                print("pas 36 - ligne 1368")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Saisie du montant X
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(data[j][7])
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(Keys.ENTER)
+            print("pas 37 - ligne 1400")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Saisie du montant X
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(data[j][7])
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
-                wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(Keys.ENTER)
-                print("pas 37 - ligne 1384")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Saisie du codique du service bénéficiaire
+        try:
+            time.sleep(delay)
+            print("ok")
+            # WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.ID, 'inputBnN4f3001Bn4F300101ZoneCodiqueService')))
+            # wd.find_element(By.ID, 'inputBn4f3001Bn4F300101ZoneCodiqueService').send_keys(data[j][9])
+            # script = "document.getElementById('inputBnN4f3001Bn4F300101ZoneCodiqueService').setAttribute('value', data[j][9])"
+            # wd.execute_script(script)
+            WebDriverWait(wd, 80).until(EC.presence_of_element_located(
+                (By.XPATH, '/html/body/div[2]/div[6]/form[4]/div/div[3]/table[7]/tbody/tr[2]/td[6]/input')))
+            time.sleep(delay)
+            wd.find_element(By.XPATH,
+                            '/html/body/div[2]/div[6]/form[4]/div/div[3]/table[7]/tbody/tr[2]/td[6]/input').send_keys(
+                str(data[0][9]).rjust(2 + len(str(data[0][9])), '0'))
+            print("data 9:", str(data[0][9]).rjust(2 + len(str(data[0][9])), '0'))
+            print("pas 38 - ligne 1416")
+        except TimeoutException:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Saisie du codique du service bénéficiaire
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'inputBn4f3001Bn4F300101ZoneCodiqueService')))
-                wd.find_element(By.ID, 'inputBn4f3001Bn4F300101ZoneCodiqueService').send_keys(data[j][9])
-                print("pas 38 - ligne 1403")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Appuyer sur Entrer pour continuer
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputBn4f3001Bn4F300116ZoneAcquisitionLibre')))
+            wd.find_element(By.ID, 'inputBn4f3001Bn4F300116ZoneAcquisitionLibre').send_keys(Keys.ENTER)
+            print("pas 39 - ligne 1435")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Appuyer sur Entrer pour continuer
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'inputBn4f3001Bn4F300116ZoneAcquisitionLibre')))
-                wd.find_element(By.ID, 'inputBn4f3001Bn4F300116ZoneAcquisitionLibre').send_keys(Keys.ENTER)
-                print("pas 39 - ligne 1419")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Validation de la transaction
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputBcvim01Ycvim013ReponseOperateur')))
+            wd.find_element(By.ID, 'inputBcvim01Ycvim013ReponseOperateur').send_keys('O')
+            print("pas 40 - ligne 1451")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Validation de la transaction
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'inputBcvim01Ycvim013ReponseOperateur')))
-                wd.find_element(By.ID, 'inputBcvim01Ycvim013ReponseOperateur').send_keys('O')
-                print("pas 40 - ligne 1435")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Numéro de l'ordre de dépense 2
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'outputBcvcs04NudepNumeroPieceDepenseCfF2')))
+            # Numero de l'ordre de depense indice #5 dans liste_temporaire_data
+            liste_temporaire_data.append(wd.find_element(By.ID, 'outputBcvcs04NudepNumeroPieceDepenseCfF2').text)
+            print("pas 41 - ligne 1452")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Numéro de l'ordre de dépense 2
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'outputBcvcs04NudepNumeroPieceDepenseCfF2')))
-                # Numero de l'ordre de depense indice #5 dans liste_temporaire_data
-                liste_temporaire_data.append(wd.find_element(By.ID, 'outputBcvcs04NudepNumeroPieceDepenseCfF2').text)
-                print("pas 41 - ligne 1452")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Pour afficher la suite
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputBcvcs04Ycvcs028Reponse')))
+            wd.find_element(By.ID, 'inputBcvcs04Ycvcs028Reponse').send_keys(Keys.ENTER)
+            print("pas 42 - ligne 1468")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
-            # Pour afficher la suite
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(
-                    EC.presence_of_element_located((By.ID, 'inputBcvcs04Ycvcs028Reponse')))
-                wd.find_element(By.ID, 'inputBcvcs04Ycvcs028Reponse').send_keys(Keys.ENTER)
-                print("pas 42 - ligne 1468")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+        # Numéro de l'opération 2
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'labelBcvcs032')))
+            # Numero de l'opération indice #6 dans liste_temporaire_data
+            liste_temporaire_data.append(
+                wd.find_element(By.ID, 'outputBcvcs03Nuopet1ErCarNuopeF2').text +
+                wd.find_element(By.ID, 'outputBcvcs03Nuopes5DerniersCarNuope').text)
 
-            # Numéro de l'opération 2
-            try:
-                time.sleep(delay)
-                WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'labelBcvcs032')))
-                # Numero de l'opération indice #6 dans liste_temporaire_data
-                liste_temporaire_data.append(
-                    wd.find_element(By.ID, 'outputBcvcs03Nuopet1ErCarNuopeF2').text +
-                    wd.find_element(By.ID, 'outputBcvcs03Nuopes5DerniersCarNuope').text)
-
-                liste_tempo_operation2_date = str(
-                    wd.find_element(By.ID, 'outputBcvcs03Nuopet1ErCarNuopeF2').text +
-                    wd.find_element(By.ID, 'outputBcvcs03Nuopes5DerniersCarNuope').text)
-                print("pas 43 - ligne 1491")
-            except:
-                progressbar_label.destroy()
-                WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-                messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-                messagebox.showinfo("Service Interrompu !", messages)
-                WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-                wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-                wd.close()
+            liste_tempo_operation2_date = str(
+                wd.find_element(By.ID, 'outputBcvcs03Nuopet1ErCarNuopeF2').text +
+                wd.find_element(By.ID, 'outputBcvcs03Nuopes5DerniersCarNuope').text)
+            print("pas 43 - ligne 1491")
+        except:
+            progressbar_label.destroy()
+            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+            messagebox.showinfo("Service Interrompu !", messages)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
 
         # Pour afficher la suite
         try:
@@ -1517,17 +1549,20 @@ def create_opposition(headless):
         time.sleep(delay)
         WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'barre_outils:image_f2')))
         wd.find_element(By.ID, 'barre_outils:image_f2').click()
-        print("pas 45 - ligne 1520")
+        print("pas 45 - ligne 1550")
 
         # Saisie la transaction 3-8-2
         try:
-            WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
+            time.sleep(delay)
+            WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
             wd.find_element(By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi').send_keys('3')
-            WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
+            time.sleep(delay)
+            WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
             wd.find_element(By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi').send_keys('8')
-            WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
+            time.sleep(delay)
+            WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
             wd.find_element(By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi').send_keys('2')
-            print("pas 46 - ligne 1530")
+            print("pas 46 - ligne 1563")
 
         except:
             progressbar_label.destroy()
@@ -1542,7 +1577,7 @@ def create_opposition(headless):
         try:
             WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputBrsdo03Nuaff1NumeroAffaire')))
             wd.find_element(By.ID, 'inputBrsdo03Nuaff1NumeroAffaire').send_keys(data[j][5])
-            print("pas 47 - ligne 1545")
+            print("pas 47 - ligne 1578")
         except:
             progressbar_label.destroy()
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
@@ -1557,7 +1592,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBrsdo03NasdoNatureSousDossier')))
             wd.find_element(By.ID, 'inputBrsdo03NasdoNatureSousDossier').send_keys('64')
-            print("pas 48 - ligne 1560")
+            print("pas 48 - ligne 1593")
         except:
             progressbar_label.destroy()
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
@@ -1583,7 +1618,7 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
 
-        # Récuperer le nom de l'entreprise à rembourser et enregistrer le dans une liste temporaire
+        # Récupérer le nom de l'entreprise à rembourser et enregistrer le dans une liste temporaire
         liste_tempo_nom_entreprise = []
         liste_tempo_nom_entreprise.append(str(data[j][0]))
         WebDriverWait(wd, 20).until(
@@ -1633,12 +1668,15 @@ def create_opposition(headless):
         # Saisir la transaction 21-2
         # Remboursement du solde à la société débitrice
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
             wd.find_element(By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi').send_keys('2')
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx062ECaractere')))
             wd.find_element(By.ID, 'inputBmenuxBrmenx062ECaractere').send_keys('1')
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
             wd.find_element(By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi').send_keys('2')
@@ -1654,7 +1692,7 @@ def create_opposition(headless):
 
         # Saisir la nature "AFF" pour debit 473-0
         try:
-            WebDriverWait(wd, 20).until(
+            WebDriverWait(wd, 10).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys('AFF')
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys(Keys.ENTER)
@@ -1670,7 +1708,7 @@ def create_opposition(headless):
 
         # Saisie du type de montant
         try:
-            WebDriverWait(wd, 20).until(
+            WebDriverWait(wd, 10).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF').send_keys(Keys.ENTER)
             print("pas 56 - ligne 1676")
@@ -1684,24 +1722,56 @@ def create_opposition(headless):
             wd.close()
 
         # Saisie du montant X
-        try:
-            WebDriverWait(wd, 20).until(
-                EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
-            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(
-                liste_temporaire_data[7])
-            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(Keys.ENTER)
-            print("pas 57 - ligne 1693")
-        except:
-            progressbar_label.destroy()
-            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-            messagebox.showinfo("Service Interrompu !", messages)
-            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
-            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
-            wd.close()
+        montant = liste_temporaire_data[7].replace('+', '')
+        # WebDriverWait(wd, 10).until(
+        #     EC.presence_of_element_located(
+        #         (By.XPATH, '/html/body/div[2]/div[6]/form[4]/div/div[3]/table[1]/tbody/tr[3]/td[18]/input')))
+        # wd.find_element(By.XPATH,
+        #                 '/html/body/div[2]/div[6]/form[4]/div/div[3]/table[1]/tbody/tr[3]/td[18]/input').send_keys(
+        #     montant)
+        time.sleep(delay)
+        time.sleep(delay)
+        time.sleep(delay)
+        print(montant)
+        set_montant = f'''document.getElementById('repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').setAttribute('value','{montant}');'''
+        wd.execute_script(set_montant)
+        print(montant)
+        time.sleep(delay)
+        wd.find_element(By.XPATH,
+                        '/html/body/div[2]/div[6]/form[4]/div/div[3]/table[1]/tbody/tr[3]/td[18]/input').send_keys(
+            Keys.ENTER)
+
+        print("pas 57 - ligne 1693")
+        # try:
+        #     montant = liste_temporaire_data[7].replace('+', '')
+        #     # set_montant = 'document.getElementById("repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation' \
+        #     #               '").setAttribute("value","{montant}") '
+        #     # wd.execute_script(set_montant)
+        #     # WebDriverWait(wd, 80).until(
+        #     #     EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
+        #     # wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(
+        #     #     montant)
+        #     WebDriverWait(wd, 80).until(
+        #         EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[6]/form[4]/div/div[3]/table[1]/tbody/tr[3]/td[18]/input')))
+        #     wd.find_element(By.XPATH, '/html/body/div[2]/div[6]/form[4]/div/div[3]/table[1]/tbody/tr[3]/td[18]/input').send_keys(
+        #         montant)
+        #     print(montant)
+        #     wd.find_element(By.XPATH, '/html/body/div[2]/div[6]/form[4]/div/div[3]/table[1]/tbody/tr[3]/td[18]/input').send_keys(Keys.ENTER)
+        #     print("pas 57 - ligne 1693")
+        # except:
+        #     progressbar_label.destroy()
+        #     WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
+        #     messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
+        #     messagebox.showinfo("Service Interrompu !", messages)
+        #     WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+        #     wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+        #     wd.close()
 
         # Saisie de l'identification
         try:
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located(
+                    (By.ID, 'repeatBcimp01:0:inputBciddepPc8IdentIndentificationBeneficiaireDep')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBciddepPc8IdentIndentificationBeneficiaireDep').send_keys(
                 liste_tempo_nom_entreprise[1])
             time.sleep(delay)
@@ -1786,6 +1856,7 @@ def create_opposition(headless):
 
         # Valider CREDIT
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI').send_keys(Keys.ENTER)
@@ -1801,6 +1872,7 @@ def create_opposition(headless):
 
         # Saisir le numéro du compte 512-96
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx').send_keys('512-96')
@@ -1816,6 +1888,7 @@ def create_opposition(headless):
 
         # Saisie de la nature "VIRT"
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys('VIRT')
@@ -1832,6 +1905,7 @@ def create_opposition(headless):
 
         # Saisie du type de montant
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF').send_keys(Keys.ENTER)
@@ -1847,6 +1921,7 @@ def create_opposition(headless):
 
         # Saisie du montant X
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(
@@ -1862,17 +1937,27 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
 
-        #Saisie de la date du jour comptable
+        # Saisie de la date du jour comptable
         try:
+            # WebDriverWait(wd, 20).until(
+            #     EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation')))
+            # wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation').send_keys(djc[0])
+            # WebDriverWait(wd, 20).until(
+            #     EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation')))
+            # wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation').send_keys(djc[1])
+            # WebDriverWait(wd, 20).until(
+            #     EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation')))
+            # wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation').send_keys(djc[2])
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation')))
-            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation').send_keys(djc[0])
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation').send_keys(Keys.ENTER)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation')))
-            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation').send_keys(djc[1])
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation').send_keys(Keys.ENTER)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation')))
-            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation').send_keys(djc[2])
+            wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation').send_keys(Keys.ENTER)
             print("pas 68 - ligne 1876")
         except:
             progressbar_label.destroy()
@@ -1885,6 +1970,7 @@ def create_opposition(headless):
 
         # Saisie du numéro de dossier
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputYrdos211NumeroDeDossier')))
             wd.find_element(By.ID, 'inputYrdos211NumeroDeDossier').send_keys(data[j][0])
@@ -1900,6 +1986,7 @@ def create_opposition(headless):
 
         # Continuer en cas d'existence de ce message : ATTENTION - OPPOSITION POUR CE DOSSIER
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_all_elements_located((By.ID, 'inputBrep9081Rep9082ReponseUtilisateurON')))
             wd.find_element(By.ID, 'inputBrep9081Rep9082ReponseUtilisateurON').send_keys('O')
@@ -1923,6 +2010,7 @@ def create_opposition(headless):
 
         # Saisie du numéro de l'IBAN
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_all_elements_located((By.ID, 'inputBibanremYaribmess1LibelleMessage')))
             wd.find_element(By.ID, 'inputBibanremYaribchoixSaisieChoix').send_keys(data[j][11])
@@ -1938,6 +2026,7 @@ def create_opposition(headless):
 
         # Libelle du virement emis
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_all_elements_located((By.ID, 'repeatBcimp01:1:inputBcrib01IbanlibLibelleVirementEmis')))
             wd.find_element(By.ID, 'repeatBcimp01:1:inputBcrib01IbanlibLibelleVirementEmis').send_keys(
@@ -1955,6 +2044,7 @@ def create_opposition(headless):
 
         # Répondre à la question "Voulez-vous valider ?"
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBcvim01Ycvim013ReponseOperateur')))
             wd.find_element(By.ID, 'inputBcvim01Ycvim013ReponseOperateur').send_keys('O')
@@ -1970,6 +2060,7 @@ def create_opposition(headless):
 
         # Visualisation du Numero de l'ordre de dépense
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'outputBcvcs04NudepNumeroPieceDepenseCfF2')))
             # Numero de l'ordre de depense indice #8 dans liste_temporaire_data
@@ -1986,6 +2077,7 @@ def create_opposition(headless):
 
         # Pour afficher la suite
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputBcvcs04Ycvcs028Reponse')))
             wd.find_element(By.ID, 'inputBcvcs04Ycvcs028Reponse').send_keys(Keys.ENTER)
@@ -2001,6 +2093,7 @@ def create_opposition(headless):
 
         # Numero de l'opération
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'labelBcvcs032')))
             # Numero de l'opération indice #9 dans liste_temporaire_data
             liste_temporaire_data.append(
@@ -2018,6 +2111,7 @@ def create_opposition(headless):
 
         # Pour afficher la suite
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputBcvcs03Ycvcs014DemandeSuite')))
             wd.find_element(By.ID, 'inputBcvcs03Ycvcs014DemandeSuite').send_keys('S')
             print("pas 76 - ligne 2023")
@@ -2038,7 +2132,7 @@ def create_opposition(headless):
         # Ajouter la ligne dans le fichier csv
         with open('temp_safety_file.txt', 'w') as f:
             f.write(' '.join(liste_temporaire_data))
-        exit()
+        # exit()
         ## Marquage tâche faîte dans le fichier
         match os.path.isfile(filepath1):
             case True:
@@ -2156,7 +2250,7 @@ def open_file():
         filepath = os.path.abspath(file.name)
         filepath = filepath.replace(os.sep, "/")
         name = os.path.basename(filepath)
-        destination_rep = source_rep + '/archive_SATD/archive' + datetime.now().strftime('_%Y-%m-%d')
+        destination_rep = source_rep + '/archives_SATD/archive' + datetime.now().strftime('_%Y-%m-%d')
         if not os.path.exists(destination_rep):
             os.makedirs(destination_rep)
         label_path.configure(text="Le fichier sélectionné est : " + Path(filepath).stem)
