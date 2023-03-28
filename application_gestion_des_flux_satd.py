@@ -7,6 +7,7 @@ from pathlib import Path
 from tkinter import *
 from tkinter import filedialog, messagebox, ttk, font
 from tkinter.ttk import Progressbar
+# import logging
 
 import numpy as np
 import pandas as pd
@@ -26,6 +27,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from _utils.error_message import ErrorMessage
 
 keyboard = Controller()
+global success
+success = '\u2713'
 
 
 def __init__(self, progress):
@@ -44,10 +47,11 @@ def resource_path(relative_path):
 
 
 def create_opposition(headless):
+    err = ErrorMessage()
     delay = 3
     message_service_interrompu = "\nLa qualité de la connexion ne permet pas un bon fonctionnement de l'automate. " \
                                  "Veuillez essayer ultérieurement ! "
-
+    # logging.basicConfig(filename='automate_SATD.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
     # Etablissement du progressBar
 
     pb = progressbar(tab6)
@@ -58,101 +62,113 @@ def create_opposition(headless):
 
     time.sleep(delay)
 
-    ##Prend la ligne du fichier depuis laquelle commencer à lire
-    # while True:
-    #     line = EnterTable2.get()
-    #     if line.isnumeric():  ##vérifie que ça soit un numéro
-    #         line = int(line)  ##ajuste l'indice
-    #         break
-    #     else:
-    #         messagebox.showerror("Erreur de saisie", 'Saisie incorrecte, réessayez')
-    #         exit()
+    ## Saisie du nom utilisateur et mot de passe
 
-    ##Combien de lignes du fichier traiter
-    # while True:
-    #     line_amount = EnterTable3.get()
-    #     if line_amount.isnumeric():
-    #         line_amount = int(line_amount)
-    #         break
-    #     else:
-    #         messagebox.showerror("Erreur de saisie", 'Saisie incorrecte, réessayez')
-    #         exit()
+    while True:
+        login = EnterTable4.get()
+        if login:  ##vérifie que ça soit un numéro
+            break
+        else:
+            messagebox.showerror("Erreur de saisie", 'Saisie incorrecte, réessayez')
+            exit()
+
+    # Combien de lignes du fichier traiter
+    while True:
+        mot_de_passe = EnterTable5.get()
+        if mot_de_passe:
+            break
+        else:
+            messagebox.showerror("Erreur de saisie", 'Saisie incorrecte, réessayez')
+            exit()
 
     ## Prend les données depuis le fichier, crée une liste de listes (ou "array"), oú chaque liste est
     ## une ligne du fichier Calc. Il faut faire ça parce que pyxcel_ods prend les données sous forme
     ## de dictionnaire.
-    donnees_creation_opposition = pe.get_data(File_path)
     source_rep = os.getcwd()
     filename1 = 'donnees_sortie_' + datetime.now().strftime('_%Y-%m-%d') + '.ods'
     filepath1 = source_rep + '/sorties_SATD/sorties_SATD' + datetime.now().strftime('_%Y-%m-%d') + '/' + filename1
     print("filepath1: \n", filepath1)
     print("----------------------------------------------------------------------------")
-    donnees_creation_opposition = pd.read_excel(File_path)
+    donnees_creation_opposition = pd.read_excel(File_path).fillna(0)
     donnees_creation_opposition["N° dossier FRP opposé"] = donnees_creation_opposition["N° dossier FRP opposé"].astype(
-        int)
+        int, errors='ignore')
     donnees_creation_opposition["N° dossier FRP opposant"] = donnees_creation_opposition[
-        "N° dossier FRP opposant"].astype(int)
-    donnees_creation_opposition["Montant opposition"] = donnees_creation_opposition["Montant opposition"].astype(int)
+        "N° dossier FRP opposant"].astype(
+        int, errors='ignore')
+    donnees_creation_opposition["Montant opposition"] = donnees_creation_opposition["Montant opposition"].astype(
+        int, errors='ignore')
 
     donnees_creation_opposition["N°affaire code 1760"] = \
-        donnees_creation_opposition["N°affaire code 1760"].astype(int)
+        donnees_creation_opposition["N°affaire code 1760"].astype(
+            int, errors='ignore')
     donnees_creation_opposition["Montant de l’affaire au code 1760"] = \
-        donnees_creation_opposition["Montant de l’affaire au code 1760"].astype(int)
+        donnees_creation_opposition["Montant de l’affaire au code 1760"].astype(
+            int, errors='ignore')
     donnees_creation_opposition["Montant à créer en « affaire service » au code 7055"] = \
-        donnees_creation_opposition["Montant à créer en « affaire service » au code 7055"].astype(int)
+        donnees_creation_opposition["Montant à créer en « affaire service » au code 7055"].astype(
+            int, errors='ignore')
     donnees_creation_opposition["Codique du service bénéficiaire"] = \
         donnees_creation_opposition["Codique du service bénéficiaire"].astype(str)
     donnees_creation_opposition["RANG RIB pour le remboursement du service bénéficiaire"] = \
-        donnees_creation_opposition["RANG RIB pour le remboursement du service bénéficiaire"].astype(int)
+        donnees_creation_opposition["RANG RIB pour le remboursement du service bénéficiaire"].astype(
+            int, errors='ignore')
     donnees_creation_opposition["RANG RIB pour le remboursement à la société "] = \
-        donnees_creation_opposition["RANG RIB pour le remboursement à la société "].astype(int)
+        donnees_creation_opposition["RANG RIB pour le remboursement à la société "].astype(
+            int, errors='ignore')
     donnees_creation_opposition["SIREN du redevable pour le libellé du virement pour la société"] = \
-        donnees_creation_opposition["SIREN du redevable pour le libellé du virement pour la société"].astype(int)
+        donnees_creation_opposition["SIREN du redevable pour le libellé du virement pour la société"].astype(
+            int, errors='ignore')
     donnees_creation_opposition[
         "Numéro et date de l'opération de dépense effectuée dans Médoc pour paiement du poste comptable RNF ayant émis la SATD "] = \
         donnees_creation_opposition[
             "Numéro et date de l'opération de dépense effectuée dans Médoc pour paiement du poste comptable RNF ayant émis la SATD "].astype(
             str)
+    last_column = "Numéro et date de l'opération de dépense effectuée dans Médoc pour paiement du poste " \
+                  "comptable RNF ayant émis la SATD "
     match os.path.isfile(filepath1):
         case True:
             donnees_creation_opposition_sortie = pd.read_excel(filepath1)
-            donnees_creation_opposition["Numéro d'Opération"] = np.nan
-            donnees_creation_opposition["Date d'exécution"] = ""
-            donnees_creation_opposition["Dossiers traités"] = ""
-            print("dataframe des données d'entrée : \n", donnees_creation_opposition)
+            print("Dossier sortie existant")
+            donnees_creation_opposition = pd.read_excel(File_path)
+            donnees_creation_opposition["Numéro d'Opération"] = 0
+            donnees_creation_opposition["Date d'exécution"] = 0
+            donnees_creation_opposition["Dossiers traités"] = 0
+            nb_ligne = donnees_creation_opposition.shape[0]
+            ligne_incomplete = list()
             print("----------------------------------------------------------------------------")
             taille_donnee_entree = donnees_creation_opposition.shape[0]
-            print("Taille des données d'entrées :  \n", taille_donnee_entree)
-            print("----------------------------------------------------------------------------")
-            print("les données : \n", donnees_creation_opposition)
-            print("----------------------------------------------------------------------------")
-            for i in range(taille_donnee_entree):
-                if donnees_creation_opposition.loc[i].isnull().any() or \
-                        donnees_creation_opposition["Date d’effet = date réception SATD"].loc[i] == 'NaT':
-                    donnees_creation_opposition.drop(i, inplace=True)
-            taille_donnee_entree1 = donnees_creation_opposition.shape[0]
-            print("Taille des données d'entrées après suppression lignes incomplétes : \n", taille_donnee_entree1)
-            print("----------------------------------------------------------------------------")
-            print("les données après suppression des lignes incomplètes :  \n", donnees_creation_opposition)
-            print("----------------------------------------------------------------------------")
-            # Enlever les données déjà passées du fichier d'entrée
-            old_data_done = donnees_creation_opposition_sortie[
-                (donnees_creation_opposition_sortie['Dossiers traités'] == '\u2713') | (
-                        donnees_creation_opposition_sortie['Dossiers traités'] == '∅') | (
-                        donnees_creation_opposition_sortie['Dossiers traités'] == 'M')]
-            old_data_done_list = old_data_done["Réf jugement validité = réf SATD"]
-            print("liste des données déjà passées \n", old_data_done_list)
-            for element in old_data_done["Réf jugement validité = réf SATD"]:
-                old_data_done_list_index = donnees_creation_opposition[
-                    donnees_creation_opposition["Réf jugement validité = réf SATD"] == element].index
-                donnees_creation_opposition.drop(old_data_done_list_index, inplace=True)
-                print("Dataframe après suppression des données déjà enregistré : ", donnees_creation_opposition)
-            data = donnees_creation_opposition.values.tolist()
-            old_data = old_data_done.values.tolist()
-            nb_ligne = len(data)
-            print("nb ligne sortie 1: \n", nb_ligne)
-            print("Les données initiales à ne pas utiliser: \n", old_data)
-            print("Les données initiales: \n", data)
+            # print("Taille des données d'entrées :  \n", taille_donnee_entree)
+            # print("----------------------------------------------------------------------------")
+            # print("les données : \n", donnees_creation_opposition)
+            # print("----------------------------------------------------------------------------")
+            # for i in range(taille_donnee_entree):
+            #     if donnees_creation_opposition.loc[:, donnees_creation_opposition.columns != column_13].loc[
+            #         i].isnull().any() or \
+            #             donnees_creation_opposition["Date d’effet = date réception SATD"].loc[i] == 'NaT':
+            #         donnees_creation_opposition.drop(i, inplace=True)
+            # taille_donnee_entree1 = donnees_creation_opposition.shape[0]
+            # print("Taille des données d'entrées après suppression lignes incomplétes : \n", taille_donnee_entree1)
+            # print("----------------------------------------------------------------------------")
+            # print("les données après suppression des lignes incomplètes :  \n", donnees_creation_opposition)
+            # print("----------------------------------------------------------------------------")
+            # # Enlever les données déjà passées du fichier d'entrée
+            # old_data_done = donnees_creation_opposition_sortie[
+            #     (donnees_creation_opposition_sortie['Dossiers traités'] == success) | (
+            #             donnees_creation_opposition_sortie['Dossiers traités'] == '∅') | (
+            #             donnees_creation_opposition_sortie['Dossiers traités'] == 'M')]
+            # old_data_done_list = old_data_done["Réf jugement validité = réf SATD"]
+            # print("liste des données déjà passées \n", old_data_done_list)
+            # for element in old_data_done["Réf jugement validité = réf SATD"]:
+            #     old_data_done_list_index = donnees_creation_opposition[
+            #         donnees_creation_opposition["Réf jugement validité = réf SATD"] == element].index
+            #     donnees_creation_opposition.drop(old_data_done_list_index, inplace=True)
+            #     print("Dataframe après suppression des données déjà enregistré : ", donnees_creation_opposition)
+            # data = donnees_creation_opposition.values.tolist()
+            # old_data = old_data_done.values.tolist()
+            # nb_ligne = len(data)
+            # print("nb ligne sortie 1: \n", nb_ligne)
+            # print("Les données initiales à ne pas utiliser: \n", old_data)
+            # print("Les données initiales: \n", data)
         case False:
             print("pas de dossier sortie existant")
             donnees_creation_opposition = pd.read_excel(File_path)
@@ -161,8 +177,6 @@ def create_opposition(headless):
             donnees_creation_opposition["Dossiers traités"] = 0
             nb_ligne = donnees_creation_opposition.shape[0]
             ligne_incomplete = list()
-            last_column = "Numéro et date de l'opération de dépense effectuée dans Médoc pour paiement du poste " \
-                          "comptable RNF ayant émis la SATD "
             donnees_creation_opposition['comparaison'] = donnees_creation_opposition.apply(
                 lambda x: True if x[6] <= x[7] else False, axis=1)
             print("ligne 142", donnees_creation_opposition['comparaison'])
@@ -180,31 +194,36 @@ def create_opposition(headless):
             donnees_creation_opposition["Dossiers traités"] = ligne_incomplete
             print("ligne incomplete : ", ligne_incomplete)
             donnees_creation_opposition.drop(["comparaison"], axis=1, inplace=True)
-            old_data = donnees_creation_opposition[(donnees_creation_opposition["Dossiers traités"] == '∅') | (
-                    donnees_creation_opposition["Dossiers traités"] == 'M')].values \
-                .tolist()
+            old_df = donnees_creation_opposition[(donnees_creation_opposition["Dossiers traités"] == '∅') | (
+                    donnees_creation_opposition["Dossiers traités"] == 'M')].fillna(0)
+            old_data = old_df.values.tolist()
             print("les données non gardé ligne 186 \n", old_data)
             data = donnees_creation_opposition[(donnees_creation_opposition["Dossiers traités"] != '∅') & (
                     donnees_creation_opposition["Dossiers traités"] != 'M')].values.tolist()
 
             print("les données d'entrée ligne 189 \n", data)
+            if not data:
+                messagebox.showinfo("Données Manquante", "Il n'y a pas de données exploitables. "
+                                                         "Veuillez vérifier le fichiers d'entrée")
+                exit()
+            else:
+                pass
             nb_ligne = len(data)
             print(nb_ligne)
     # Conversion du champ date[j][3] en string
     for j in range(nb_ligne):
         if isinstance(data[j][3], str):
-            print("Ligne 559:", type(data[j][3]))
+            print("Ligne 212:", type(data[j][3]))
             pass
         else:
             data[j][3] = data[j][3].strftime('%Y-%m-%d')
-            print("Ligne 559:", type(data[j][3]))
-    # exit()
+            print("Ligne 216:", type(data[j][3]))
+            try:
+                old_data[j][3] = old_data[j][3].strftime('%Y-%m-%d')
+            except:
+                pass
 
     #########################################
-
-    ## Saisie du nom utilisateur et mot de passe
-    login = EnterTable4.get()
-    mot_de_passe = EnterTable5.get()
 
     ## Saisie de numéro de dossier :
     # numeroDossier = EnterTable6.get()
@@ -220,24 +239,24 @@ def create_opposition(headless):
     # wd = webdriver.Edge(r"msedgedriver.exe")
     # wd = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=wd_options)
     ## TODO Passer au service object
-    # wd.get(
-    #     'https://portailmetierpriv.ira.appli.impots/cas/login?service=http%3A%2F%2Fmedoc.ia.dgfip%3A8141%2Fmedocweb'
-    #     '%2Fcas%2Fvalidation')  # adresse MEDOC DGE
-
     wd.get(
-        'http://medoc.ia.dgfip:8121/medocweb/presentation/md2oagt/ouverturesessionagent/ecran'
-        '/ecOuvertureSessionAgent.jsf')  # adresse MEDOC Classic
+        'https://portailmetierpriv.ira.appli.impots/cas/login?service=http%3A%2F%2Fmedoc.ia.dgfip%3A8141%2Fmedocweb'
+        '%2Fcas%2Fvalidation')  # adresse MEDOC DGE
+
+    # wd.get(
+    #     'http://medoc.ia.dgfip:8121/medocweb/presentation/md2oagt/ouverturesessionagent/ecran'
+    #     '/ecOuvertureSessionAgent.jsf')  # adresse MEDOC Classic
     ##Saisir utilisateur
     time.sleep(delay)
-    # script = f'''identifant = document.getElementById('identifiant'); identifiant.setAttribute('type','hidden'); identifiant.setAttribute('value',"{login}");'''
-    script = f'''identifant = document.getElementById('identifiant'); identifiant.setAttribute('type','hidden'); 
-    identifiant.setAttribute('value',"youssef.atigui"); '''
+    script = f'''identifant = document.getElementById('identifiant'); identifiant.setAttribute('type','hidden'); identifiant.setAttribute('value',"{login}");'''
+    # script = f'''identifant = document.getElementById('identifiant'); identifiant.setAttribute('type','hidden');
+    # identifiant.setAttribute('value',"youssef.atigui"); '''
     wd.execute_script(script)
 
     ## Saisie mot de pass
     time.sleep(delay)
-    # wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
-    wd.find_element(By.ID, 'secret_tmp').send_keys("1")
+    wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
+    # wd.find_element(By.ID, 'secret_tmp').send_keys("1")
 
     time.sleep(delay)
     wd.find_element(By.ID, 'secret_tmp').send_keys(Keys.RETURN)
@@ -247,8 +266,8 @@ def create_opposition(headless):
         messagebox.showinfo("Service Interrompu !", "Le service est indisponible\n pour l'instant")
         wd.close()
     ## Saisir service
-    # wd.find_element(By.ID, 'nomServiceChoisi').send_keys('0070100')  # FRP MEDOC DGE
-    wd.find_element(By.ID, 'nomServiceChoisi').send_keys('6200100')
+    wd.find_element(By.ID, 'nomServiceChoisi').send_keys('0070100')  # FRP MEDOC DGE
+    # wd.find_element(By.ID, 'nomServiceChoisi').send_keys('6200100')
     time.sleep(delay)
     wd.find_element(By.ID, 'nomServiceChoisi').send_keys(Keys.TAB)
 
@@ -265,12 +284,10 @@ def create_opposition(headless):
         messagebox.showinfo("Service Interrompu !", messages)
         wd.close()
 
-
-
     ## Boucle sur le fichier selon le nombre de lignes indiquées
     j = 0
     while True:
-        print(f"les données à la nouvelle à la ligne 293: ", data)
+        print(f"les données à la nouvelle ligne à la ligne 293: ", data)
         time.sleep(delay)
         wd.find_element(By.ID, 'inputBmenuxBrmenx07CodeSaisieDirecte').send_keys('3')
         wd.find_element(By.ID, 'inputBmenuxBrmenx07CodeSaisieDirecte').send_keys(Keys.ENTER)
@@ -290,7 +307,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        print("N° de ligne à la ligne 313: ", j)
+        print("N° de ligne à la ligne 308: ", j)
         source_rep = os.getcwd()
         destination_rep = source_rep + '/archives_SATD/archive' + datetime.now().strftime('_%Y-%m-%d')
         num_of_secs = 360
@@ -303,7 +320,7 @@ def create_opposition(headless):
 
         ## Saisie numéro de Dossier
         while True:
-            print(f"numéro de dossier pour la ligne {j} à ligne 326: ", data[j][0])
+            print(f"numéro de dossier pour la ligne {j} à ligne 321: ", data[j][0])
             time.sleep(delay)
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.ID, 'inputYrdos211NumeroDeDossier')))
             wd.find_element(By.ID, 'inputYrdos211NumeroDeDossier').send_keys(data[j][0])
@@ -351,7 +368,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd,delay)
+            ErrorMessage.error_message(wd, delay)
 
         ## Saisie du numéro de dossier créancier
         try:
@@ -370,7 +387,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
         ## Saisie de la suite
         try:
             time.sleep(delay)
@@ -386,7 +403,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## SAISIE DES REFERENCES DE L'OPPOSITION
         ## Transport de créance
@@ -403,7 +420,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Saisie ATD
         try:
@@ -418,7 +435,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Saisie du crédit
         try:
@@ -433,7 +450,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Saisie Empêchement
         try:
@@ -448,7 +465,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Saisie Montant
         try:
@@ -464,7 +481,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Saisie de la Date d'Effet
         print(type(data[j][3]))
@@ -487,7 +504,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Saisie du Mois d'Effet
         try:
@@ -502,7 +519,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Saisie de l'Année d'Effet
         try:
@@ -517,7 +534,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Saisie de la référence de jugement
         try:
@@ -534,7 +551,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Saisie de la date d'exécution de jugement
         try:
@@ -559,7 +576,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Saisie de la date de renouvellement
         try:
@@ -584,7 +601,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Validation de la non saisie des dates
         try:
@@ -600,7 +617,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Validation de la suite
         try:
@@ -616,7 +633,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Validation de la saisie de l'opposition
         try:
@@ -632,7 +649,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Capture numéro d'opération
         try:
@@ -646,7 +663,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Saisie de la fin de la phase 1bis
         try:
@@ -662,7 +679,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         ## Début de la phase 2
         time.sleep(delay)
@@ -688,7 +705,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Création affaire service au code R17 "7055"
         # Saisie de la nature "AFF" pour debit 473-0
@@ -706,7 +723,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du type de montant
         try:
@@ -722,7 +739,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du montant X
         try:
@@ -741,7 +758,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir une identification
         try:
@@ -763,7 +780,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du numéro d'affaire
         try:
@@ -781,7 +798,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Confirmer le libelle de l'affaire
         try:
@@ -798,14 +815,15 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir le code R27 "7370"
         try:
-            time.sleep(delay)
-            WebDriverWait(wd, 40).until(
-                EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi')))
-            wd.find_element(By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi').send_keys(Keys.ENTER)
+
+            # WebDriverWait(wd, 40).until(
+            #     EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi')))
+            # wd.find_element(By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi').send_keys(Keys.ENTER)
+
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01RMontantSaisi')))
             time.sleep(delay)
@@ -815,19 +833,19 @@ def create_opposition(headless):
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01SValidationOperateur')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys('O')
             wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys(Keys.ENTER)
-            # WebDriverWait(wd, 40).until(
-            #     EC.presence_of_element_located((By.ID, 'inputBcaff12Bcaff121ValidationON')))
-            # wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys('O')
-            # wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys(Keys.ENTER)
+            WebDriverWait(wd, 40).until(
+                EC.presence_of_element_located((By.ID, 'inputBcaff12Bcaff121ValidationON')))
+            wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys('O')
+            wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys(Keys.ENTER)
             print("pas 7 - ligne 840")
         except TimeoutException:
-            progressbar_label.destroy()
-            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-            messagebox.showinfo("Service Interrompu !", messages)
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir le numéro du compte 477-0
         try:
@@ -843,13 +861,13 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx').send_keys(Keys.ENTER)
             print("pas 8 - ligne 857")
         except TimeoutException:
-            progressbar_label.destroy()
-            WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
-            messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
-            messagebox.showinfo("Service Interrompu !", messages)
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir la nature "AFF" pour crédit 477-0
         try:
@@ -866,7 +884,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du type de montant
         try:
@@ -882,7 +900,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du montant X
         try:
@@ -901,7 +919,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie la date comptable
         # Capture et réutilisation de la date journée comptable
@@ -934,7 +952,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du numéro d'affaire
         try:
@@ -949,7 +967,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie le numéro de dossier
         try:
@@ -974,7 +992,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du libellé
         try:
@@ -995,7 +1013,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir le code R27 "7055"
         try:
@@ -1023,7 +1041,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Validation de la transaction
         try:
@@ -1038,7 +1056,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Création d'une liste temporaire avec numéro d'ordre de dépenses, le numéro de l'affaire créée et le numéro
         # de l'opération Le numéro de l'opération est divisé sur deux cellules dans MEDOC Cette liste sera finalement
@@ -1061,7 +1079,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Pour afficher la suite
         try:
@@ -1075,7 +1093,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Numéro de l'affaire créée
         try:
@@ -1092,7 +1110,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         if liste_temporaire_data[3] != numero_affaire_creee or liste_temporaire_data[3] == '':
             time.sleep(delay)
@@ -1115,7 +1133,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Numero de l'opération 1
         try:
@@ -1132,7 +1150,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Pour afficher la suite
         try:
@@ -1147,7 +1165,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Fin de la transaction 21-2 et retour à la page d'accueil
         WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.ID, 'inputBcvcs03Ycvcs014DemandeSuite')))
@@ -1183,6 +1201,7 @@ def create_opposition(headless):
         # Saisir la nature "AFF" pour crédit 477-0
         try:
             time.sleep(delay)
+            time.sleep(delay)
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys('AFF')
@@ -1195,7 +1214,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du type de montant
         try:
@@ -1211,7 +1230,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du montant X
         try:
@@ -1232,7 +1251,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir une identification
         try:
@@ -1252,7 +1271,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir le numéro d'affaire créée précédemment
         try:
@@ -1268,7 +1287,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Confirmer le libelle de l'affaire
         try:
@@ -1284,7 +1303,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir le code R27 "8755"
         try:
@@ -1306,7 +1325,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Répondre à la question "Soldez-vous l'affaire ?"
         try:
@@ -1322,7 +1341,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Valider CREDIT
         try:
@@ -1342,7 +1361,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir la nature "OVIRT"
         try:
@@ -1361,7 +1380,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir ENTREE pour type de montant
         try:
@@ -1377,7 +1396,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du montant X
         try:
@@ -1396,7 +1415,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du codique du service bénéficiaire
         try:
@@ -1421,7 +1440,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Appuyer sur Entrer pour continuer
         try:
@@ -1437,7 +1456,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Validation de la transaction
         try:
@@ -1453,7 +1472,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Numéro de l'ordre de dépense 2
         try:
@@ -1470,7 +1489,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Pour afficher la suite
         try:
@@ -1486,7 +1505,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Numéro de l'opération 2
         try:
@@ -1508,7 +1527,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Pour afficher la suite
         try:
@@ -1523,7 +1542,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Fin de la transaction 21-2 et retour à la page d'accueil
         time.sleep(delay)
@@ -1551,7 +1570,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir le numéro d'affaire à partir des données d'entrées
         try:
@@ -1579,7 +1598,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir le type de l'affaire "64"
         try:
@@ -1595,7 +1614,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Récuperer le nouveau solde de l'affaire au code 1760 et enregistrer le sous indice #7 dans liste_temporaire_data
         try:
@@ -1612,10 +1631,10 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Récupérer le nom de l'entreprise à rembourser et enregistrer le dans une liste temporaire
-        liste_tempo_nom_entreprise = []
+        liste_tempo_nom_entreprise = [str(data[j][0])]
         liste_tempo_nom_entreprise.append(str(data[j][0]))
         WebDriverWait(wd, 40).until(
             EC.presence_of_element_located((By.ID, 'outputBrtit04NomprfNomProfession')))
@@ -1639,7 +1658,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Pour afficher la suite encore une fois en cas de besoin
         try:
@@ -1655,7 +1674,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Fin de la transaction 3-8-2 et retour à la page d'accueil
         time.sleep(delay)
@@ -1703,7 +1722,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du type de montant
         try:
@@ -1718,7 +1737,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du montant X
         montant = liste_temporaire_data[7].replace('+', '')
@@ -1761,7 +1780,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du numéro d'affaire créée précédemment
         try:
@@ -1777,7 +1796,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Confirmer le libelle de l'affaire
         try:
@@ -1793,7 +1812,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir le code R27 "7370"
         try:
@@ -1807,7 +1826,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01SValidationOperateur')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys('O')
-            print("pas 61 - ligne 1761")
+            print("pas 61 - ligne 1810")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -1815,7 +1834,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Répondre à la question "Soldez-vous l'affaire ?"
         try:
@@ -1823,7 +1842,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 60).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff12Bcaff121ValidationON')))
             wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys('O')
-            print("pas 62 - ligne 1777")
+            print("pas 62 - ligne 1826")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -1831,7 +1850,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Valider CREDIT
         try:
@@ -1839,7 +1858,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI').send_keys(Keys.ENTER)
-            print("pas 63 - ligne 1911")
+            print("pas 63 - ligne 1842")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -1847,7 +1866,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir le numéro du compte 512-96
         try:
@@ -1855,7 +1874,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx').send_keys('512-96')
-            print("pas 64 - ligne 1807")
+            print("pas 64 - ligne 1858")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -1863,7 +1882,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie de la nature "VIRT"
         try:
@@ -1872,7 +1891,7 @@ def create_opposition(headless):
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys('VIRT')
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys(Keys.ENTER)
-            print("pas 65 - ligne 1823")
+            print("pas 65 - ligne 1875")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -1880,7 +1899,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du type de montant
         try:
@@ -1896,7 +1915,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du montant X
         try:
@@ -1914,7 +1933,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie de la date du jour comptable
         try:
@@ -1946,7 +1965,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisie du numéro de dossier
         try:
@@ -1962,7 +1981,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Continuer en cas d'existence de ce message : ATTENTION - OPPOSITION POUR CE DOSSIER
         try:
@@ -1970,7 +1989,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 40).until(
                 EC.presence_of_all_elements_located((By.ID, 'inputBrep9081Rep9082ReponseUtilisateurON')))
             wd.find_element(By.ID, 'inputBrep9081Rep9082ReponseUtilisateurON').send_keys('O')
-            print("pas 70 - ligne 1906")
+            print("pas 70 - ligne 1988")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -1978,7 +1997,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Continuer en cas d'existence de RAR
         try:
@@ -2002,7 +2021,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Libelle du virement emis
         try:
@@ -2020,7 +2039,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Répondre à la question "Voulez-vous valider ?"
         try:
@@ -2036,14 +2055,14 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Visualisation du Numero de l'ordre de dépense
         try:
             time.sleep(delay)
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'outputBcvcs04NudepNumeroPieceDepenseCfF2')))
-            # Numero de l'ordre de depense indice #8 dans liste_temporaire_data
+            # Numero de l'ordre de dépense indice #8 dans liste_temporaire_data
             liste_temporaire_data.append(wd.find_element(By.ID, 'outputBcvcs04NudepNumeroPieceDepenseCfF2').text)
             print("pas 73 - ligne 1977")
         except TimeoutException:
@@ -2053,7 +2072,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Pour afficher la suite
         try:
@@ -2069,7 +2088,7 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Numero de l'opération
         try:
@@ -2079,7 +2098,7 @@ def create_opposition(headless):
             liste_temporaire_data.append(
                 wd.find_element(By.ID, 'outputBcvcs03Nuopet1ErCarNuopeF2').text +
                 wd.find_element(By.ID, 'outputBcvcs03Nuopes5DerniersCarNuope').text)
-            print("pas 75 - ligne 2009")
+            print("pas 75 - ligne 2082")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -2087,14 +2106,14 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Pour afficher la suite
         try:
             time.sleep(delay)
             WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.ID, 'inputBcvcs03Ycvcs014DemandeSuite')))
             wd.find_element(By.ID, 'inputBcvcs03Ycvcs014DemandeSuite').send_keys('S')
-            print("pas 76 - ligne 2023")
+            print("pas 76 - ligne 2097")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -2102,28 +2121,445 @@ def create_opposition(headless):
             wd.close()
         except:
             progressbar_label.destroy()
-            ErrorMessage.error_message(wd, 3)
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Fin de la transaction 21-2 et retour à la page d'accueil
         time.sleep(delay)
         WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.ID, 'barre_outils:image_f2')))
         wd.find_element(By.ID, 'barre_outils:image_f2').click()
 
+        # Saisir la transaction 3-1-7
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
+            wd.find_element(By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi').send_keys('3')
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi')))
+            wd.find_element(By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi').send_keys('1')
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputBmenuxBrmenx062ECaractere')))
+            wd.find_element(By.ID, 'inputBmenuxBrmenx062ECaractere').send_keys('7')
+            print("pas 77 - ligne 2123")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Création affaire service au code R17 "7055"
+        # Saisir le numéro du dossier
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputYrdos211NumeroDeDossier')))
+            wd.find_element(By.ID, 'inputYrdos211NumeroDeDossier').send_keys(data[j][0])
+            print("pas 78 - ligne 2139")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Saisir M pour mise à jour
+        try:
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'labelB33gmenu0')))
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputB33gmenuYa33Gch1ChoixCMAI').send_keys("M")
+            print("pas 79 - ligne 2154")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Saisir le numéro FRP de l'opposant
+        try:
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputYrdos211NumeroDeDossier').send_keys(data[j][1])
+            print("pas 80 - ligne 2168")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Taper sur la touche « Entrée » jusqu’à la case de saisie
+        # Titre
+        try:
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginfoYa33Gtit2Titre')))
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputB33ginfoYa33Gtit2Titre').send_keys(Keys.ENTER)
+            # Profession/activité
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginfoYa33GprofProfession')))
+            wd.find_element(By.ID, 'inputB33ginfoYa33GprofProfession').send_keys(Keys.ENTER)
+            # Adresse No
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginf1Ya33GnoaNAdresse')))
+            wd.find_element(By.ID, 'inputB33ginf1Ya33GnoaNAdresse').send_keys(Keys.ENTER)
+            # Adresse B/T
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginf1Ya33GcplComplementBT')))
+            wd.find_element(By.ID, 'inputB33ginf1Ya33GcplComplementBT').send_keys(Keys.ENTER)
+            # Adresse VOIE
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginf1Ya33GvoieVoie')))
+            wd.find_element(By.ID, 'inputB33ginf1Ya33GvoieVoie').send_keys(Keys.ENTER)
+            # Adresse COMMUNE
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginf1Ya33GcomCommune')))
+            wd.find_element(By.ID, 'inputB33ginf1Ya33GcomCommune').send_keys(Keys.ENTER)
+            # Adresse COMPL
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf1Ya33GcpaComplementAdresse')))
+            wd.find_element(By.ID, 'inputB33ginf1Ya33GcpaComplementAdresse').send_keys(Keys.ENTER)
+            # Adresse CODE POSTAL
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginf1Ya33GcpoCodePostal')))
+            wd.find_element(By.ID, 'inputB33ginf1Ya33GcpoCodePostal').send_keys(Keys.ENTER)
+            # Adresse BUREAU
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginf1Ya33GbudiBureau')))
+            wd.find_element(By.ID, 'inputB33ginf1Ya33GbudiBureau').send_keys(Keys.ENTER)
+            print("pas 81 - ligne 2208")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Saisir S pour la validation
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33gsuvlYa33G009Reponse')))
+            wd.find_element(By.ID, 'inputB33gsuvlYa33G009Reponse').send_keys("S")
+            print("pas 82 - ligne 2222")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Taper sur la touche « Entrée » jusqu’à la case de saisie
+        # Transport de creance O/N
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GtrcrTransportCreance')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GtrcrTransportCreance').send_keys(Keys.ENTER)
+            # ATD, Saisies O/N
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GadtAdt')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GadtAdt').send_keys(Keys.ENTER)
+            # Crédit O/N
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GcredCreditIs')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GcredCreditIs').send_keys(Keys.ENTER)
+            # Empechements O/N
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GempEmpechement').send_keys(Keys.ENTER)
+            # Montant
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GmtMontant')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GmtMontant').send_keys(Keys.ENTER)
+            # Date d'effet
+            # Jour
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GdtefDateEffetJour')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GdtefDateEffetJour').send_keys(Keys.ENTER)
+            # Mois
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GdtefDateEffetMois')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GdtefDateEffetMois').send_keys(Keys.ENTER)
+            # Année
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GdtefDateEffetAnnee')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GdtefDateEffetAnnee').send_keys(Keys.ENTER)
+            # Ref jugt validite
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GjuvlJugementValidite')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GjuvlJugementValidite').send_keys(Keys.ENTER)
+            # date d'execution jugt
+            # Jour
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GdjuvDateExecutionJugementJour')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GdjuvDateExecutionJugementJour').send_keys(Keys.ENTER)
+            # Mois
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GdjuvDateExecutionJugementMois').send_keys(Keys.ENTER)
+            # Année
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GdjuvDateExecutionJugementAnnee')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GdjuvDateExecutionJugementAnnee').send_keys(Keys.ENTER)
+            print("pas 83- ligne 2274")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Message informatif
+        # Pas de date d'exécution du jugement saisie, souhaitez-vous continuer ?
+        try:
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'outputBrep9081Txt9081TexteDemandeConfirmation')))
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputBrep9081Rep9082ReponseUtilisateurON').send_keys('O')
+            print("pas 84 - ligne 2291")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Date de renouvellement
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GdtreDateRenouvellementJour')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GdtreDateRenouvellementJour').send_keys(Keys.ENTER)
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GdtreDateRenouvellementMois')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GdtreDateRenouvellementMois').send_keys(Keys.ENTER)
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GdtreDateRenouvellementAnnee')))
+            wd.find_element(By.ID, 'inputB33ginf2Ya33GdtreDateRenouvellementAnnee').send_keys(Keys.ENTER)
+            print("pas 85 - ligne 2312")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Saisir S pour passer à l'écran suivant
+        try:
+            WebDriverWait(wd, 30).until(
+                EC.presence_of_element_located((By.ID, 'inputB33gsuprYa33G007ReponseSuitePrec')))
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputB33gsuprYa33G007ReponseSuitePrec').send_keys('S')
+            print("pas 85 - ligne 2328")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Saisir REF main levée
+        try:
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GrfmlRefMainlevee')))
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GrfmlRefMainlevee').send_keys(f"{numero_ope} du {djc_capture}")
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GrfmlRefMainlevee').send_keys(Keys.ENTER)
+            print("pas 86 - ligne 2345")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Saisir date de main levée
+        # Capture et réutilisation de la date journée comptable
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 40).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GdtmlDateMainleveeJour')))
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GdtmlDateMainleveeJour').send_keys(djc[0])
+            time.sleep(delay)
+            WebDriverWait(wd, 40).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GdtmlDateMainleveeMois')))
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GdtmlDateMainleveeMois').send_keys(djc[1])
+            time.sleep(delay)
+            WebDriverWait(wd, 40).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GdtmlDateMainleveeAnnee')))
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GdtmlDateMainleveeAnnee').send_keys(djc[2])
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GdtmlDateMainleveeAnnee').send_keys(Keys.ENTER)
+            print("pas 87 - ligne 2367")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Saisir type de main levée
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GtpmlTypeMainlevee')))
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GtpmlTypeMainlevee').send_keys('TOTALE')
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GtpmlTypeMainlevee').send_keys(Keys.ENTER)
+            print("pas 87 - ligne 2384")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # REF JUGT NULLITE
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GrfnlRefJugtNullite')))
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GrfnlRefJugtNullite').send_keys(Keys.ENTER)
+            print("pas 88 - ligne 2399")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # DATE JUGT NULLITE
+        # Jour
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GdtnlDateJugtNulliteJour')))
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GdtnlDateJugtNulliteJour').send_keys(Keys.ENTER)
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GdtnlDateJugtNulliteMois')))
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GdtnlDateJugtNulliteMois').send_keys(Keys.ENTER)
+            time.sleep(delay)
+            WebDriverWait(wd, 20).until(
+                EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GdtnlDateJugtNulliteAnnee')))
+            wd.find_element(By.ID, 'inputB33ginf3Ya33GdtnlDateJugtNulliteAnnee').send_keys(Keys.ENTER)
+            print("pas 89 - ligne 2421")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Saisir O pour valider (Voulez-vous valider ?)
+        try:
+            time.sleep(delay)
+            validation_script = \
+                f'''document.getElementById('inputB33gvlcrYa33GvalcValidationCreation').setAttribute('value','O');'''
+            wd.execute_script(validation_script)
+            # WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputB33gvlcrYa33GvalcValidationCreation')))
+            time.sleep(delay)
+            wd.find_element(By.ID, 'inputB33gvlcrYa33GvalcValidationCreation').send_keys(Keys.ENTER)
+            print("pas 90 - ligne 2436")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Création d'une liste temporaire avec numéro d'ordre de dépenses, le numéro de l'affaire créée et le numéro de l'opération
+        # Le numéro de l'opération est divisé sur deux cellules dans MEDOC
+        # Cette liste sera finalement collée comme ligne dans le fichier des donnees de sortie
+        liste_temporaire_data = [str(data[j][0]), str(data[j][1]), str(data[j][3])]
+
+        # Numero de l'opération
+        try:
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'labelB33gnope0')))
+            # Numero de l'ordre de depense indice #3 dans liste_temporaire_data
+            liste_temporaire_data.append(wd.find_element(By.ID, 'outputB33gnopeYa33GnopeNOpe').text)
+            print("pas 91 - ligne 2460")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # fin de transaction :
+        try:
+            time.sleep(delay)
+            fin_transaction_script = \
+                f'''document.getElementById('inputB33gcrmdYa33G012Reponse').setAttribute('value','N');'''
+            wd.execute_script(fin_transaction_script)
+            print("pas 92 - ligne 2484")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
+        # Retour au menu
+        WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+        wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+
         # convertir les colonnes numériques de la liste data en entier
 
-        # exit()
         ## Marquage tâche faîte dans le fichier
         match os.path.isfile(filepath1):
             case True:
+                data[j][13] = f"{numero_ope} du {djc_capture}"
                 data[j][14] = numero_ope
                 data[j][15] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                data[j][16] = '\u2713'
+                data[j][16] = success
                 print("inscription des données dans la liste ligne 929", data)
             case False:
+                data[j][13] = f"{numero_ope} du {djc_capture}"
                 data[j][3] = str(date_d_effet.strftime('%Y-%m-%d'))
                 data[j][14] = numero_ope
                 data[j][15] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                data[j][16] = '\u2713'
+                data[j][16] = success
                 print("inscription des données ligne 2147", data)
         print("le N° de ligne est à la ligne 2148:", j)
 
@@ -2138,13 +2574,9 @@ def create_opposition(headless):
         pb.update()
         tab6.update()
         print("le N° de ligne est  à la ligne 2160:", j)
-        if j + 1 < nb_ligne:
-            j += 1
-        else:
-            break
         print("les données à la nouvelle ligne : ", data[j])
         data_ods = data
-        columns = ["FRP société", "FRP opposant", "Montant opposition","Date d’effet = date réception SATD",
+        columns = ["FRP société", "FRP opposant", "Montant opposition", "Date d’effet = date réception SATD",
                    "Réf jugement validité = réf SATD", "N°affaire code 1760",
                    "Montant de l’affaire au code 1760", "Montant à créer en «affaire service» au code 7055",
                    "Identification du bénéficiaire de la dépense", "Codique du service bénéficiaire",
@@ -2152,7 +2584,7 @@ def create_opposition(headless):
                    "RANG RIB pour le remboursement à la société",
                    "SIREN du redevable pour le libellé du virement pour la société",
                    "Numéro et date de l'opération de dépense effectuée dans Médoc pour paiement du poste "
-                   "comptable RNF ayant émis la SATD ", "Numéro d'Opération","Date d'exécution", "Dossiers traités"]
+                   "comptable RNF ayant émis la SATD ", "Numéro d'Opération", "Date d'exécution", "Dossiers traités"]
         data_ods.insert(0, columns)
         print("les nouvelles data : \n", data)
         # source_rep = os.getcwd()
@@ -2186,14 +2618,17 @@ def create_opposition(headless):
             if not old_data:
                 data_ods = data_ods
             else:
-                numpyData = np.append(data_ods, old_data.fillna(0), axis=0)
+                numpyData = np.append(data_ods, old_data, axis=0)
                 data_ods = list(numpyData)
             data_ods.insert(0, columns)
-            print("listData : \n", data_ods)
-
+            print("data_ods : \n", data_ods)
+            print("pas 92 - ligne 2616 - Fin de boucle")
         save_data(saved_file, data_ods)
-        del data[0]
-
+        if j + 1 < nb_ligne:
+            j += 1
+        else:
+            break
+    del data[0]
     data_df = pd.DataFrame(data_ods)
 
     print("le dataframe : ", data_df)
@@ -2252,21 +2687,23 @@ def open_file():
         print("----------------------------------------------------------------------------")
         nb_ligne1 = df1.shape[0]
         s = 's' if nb_ligne1 > 1 else ''
-        sub_df1 = df1[df1['Dossiers traités'] == 'X']
+        sub_df1 = df1[df1['Dossiers traités'] == success]
         print("le dataframe contenant les lignes déjà faites: \n", sub_df1)
         print("----------------------------------------------------------------------------")
         if len(sub_df1) - len(df) != 0:
             response = messagebox.askyesno(
                 "Création d'opposition", "Le fichier a déjà été traité par l'automate, à l'exception d'une ou "
-                                         "plusieurs SATD identifiée(s) par les symboles \"X, ∅, \U0001F512\" en "
+                                         f"plusieurs SATD identifiée(s) par les symboles \"{success}, ∅, \U0001F512\" en "
                                          "colonne \"Dossiers traités\".")
             try:
                 time.sleep(2)
                 tab5 = Frame(tabControl, bg='#E3EBD0')
                 tabControl.add(tab5, text='liste des oppositions déjà effectuées')
-                df1['Date d’effet = date réception SATD'] = df['Date d’effet = date réception SATD'].dt.strftime(
-                    '%d-%m-%Y')
-                table = Table(tab5, dataframe=df1, read_only=True, index=FALSE)
+                sub_df2 = df1[(df1['Dossiers traités'] == success) | (df1['Dossiers traités'] == '∅') | (
+                            df1['Dossiers traités'] == 'M')]
+                # df1['Date d’effet = date réception SATD'] = df['Date d’effet = date réception SATD'].dt.strftime(
+                #     '%d-%m-%Y')
+                table = Table(tab5, dataframe=sub_df2, read_only=True, index=FALSE)
                 table.place(y=120)
                 table.autoResizeColumns()
                 table.show()
@@ -2375,8 +2812,6 @@ label4.place(x=paramx + 240, y=paramy + 105)
 entry3 = Entry(tab2, textvariable=EnterTable3, justify='center')
 entry3.place(width=225, x=paramx + 490, y=paramy + 105)
 
-
-
 # login et mot de passe sur tab1 à tab3
 label5 = Label(tab1, text='Identifiant:', relief="sunken")
 label5.place(x=250, y=70)
@@ -2420,17 +2855,13 @@ label_path6.place(x=paramx + 490, y=paramy - 30)
 # purge_label = Label(tab6, text="A utiliser en cas d'arrêt inattendu de l'automate en cours d'utilisation !",
 #                     relief="sunken")
 # purge_label.place(x=paramx + 340, y=paramy + 50)
-mozilla = Image.open('firefox-logo-1024x985.png')
-mozilla_resize = mozilla.resize((20, 20), Image.LANCZOS)
-mozillaIcon = ImageTk.PhotoImage(mozilla_resize)
 
-browser_button = Button(tab6, bg="#C7DDC5", text='Créer les SATD sans visualisation des transactions',
-                        command=lambda: create_opposition(headless=True))
-browser_button.place(x=paramx + 240, y=paramy + 100)
+
+wd_button = Button(tab6, bg="#C7DDC5", text='Créer les SATD sans visualisation des transactions',
+                   command=lambda: create_opposition(headless=True))
+wd_button.place(x=paramx + 240, y=paramy + 100)
 creerOpposition = Button(tab6, bg="#9FCDA8", text='Créer les SATD avec visualisation des transactions',
-                         compound=LEFT, image=mozillaIcon,  command=lambda: create_opposition(headless=False))
+                         command=lambda: create_opposition(headless=False))
 creerOpposition.place(x=paramx + 240, y=paramy + 150)
-
-
 
 Interface.mainloop()

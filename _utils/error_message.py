@@ -7,7 +7,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 
 class ErrorMessage:
-    def error_message(self,wd,delay):
+    def error_message(self,wd):
+        delay = 3
         WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'ui-messages-error')))
         messages = wd.find_element(By.CLASS_NAME, 'ui-messages-error').text
         print(messages)
