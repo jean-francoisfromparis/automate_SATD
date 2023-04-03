@@ -11,8 +11,6 @@ from tkinter.ttk import Progressbar
 
 import numpy as np
 import pandas as pd
-import pyexcel_ods3 as pe
-from PIL import Image, ImageTk
 from pandastable import Table
 from pyexcel_ods import save_data
 from pynput.keyboard import Controller
@@ -29,6 +27,11 @@ from _utils.error_message import ErrorMessage
 keyboard = Controller()
 global success
 success = '\u2713'
+global enter
+enter = "new KeyboardEvent('keydown', {altKey:false,bubbles: true, cancelBubble: false,cancelable: true," \
+        "charCode: 0,code: 'Enter',composed: true,ctrlKey: false,currentTarget: null, defaultPrevented: true, " \
+        "detail: 0, eventPhase: 0, isComposing: false, isTrusted: true, key: 'Enter', keyCode: 13, location: 0, " \
+        "metaKey: false, repeat: false, returnValue: false, shiftKey: false, type: 'keydown', which: 13}); "
 
 
 def __init__(self, progress):
@@ -90,6 +93,9 @@ def create_opposition(headless):
     print("filepath1: \n", filepath1)
     print("----------------------------------------------------------------------------")
     donnees_creation_opposition = pd.read_excel(File_path).fillna(0)
+    columns = donnees_creation_opposition.columns.values.tolist()
+    columns_sortie = columns + ["Numéro d'Opération", "Date d'exécution", "Dossiers traités"]
+
     donnees_creation_opposition["N° dossier FRP opposé"] = donnees_creation_opposition["N° dossier FRP opposé"].astype(
         int, errors='ignore')
     donnees_creation_opposition["N° dossier FRP opposant"] = donnees_creation_opposition[
@@ -130,13 +136,55 @@ def create_opposition(headless):
             donnees_creation_opposition_sortie = pd.read_excel(filepath1)
             print("Dossier sortie existant")
             donnees_creation_opposition = pd.read_excel(File_path)
-            donnees_creation_opposition["Numéro d'Opération"] = 0
-            donnees_creation_opposition["Date d'exécution"] = 0
-            donnees_creation_opposition["Dossiers traités"] = 0
+            donnees_creation_opposition["Numéro d'Opération"] = donnees_creation_opposition[
+                "Numéro d'Opération"].astype(str)
+            donnees_creation_opposition["Numéro d'Opération"] = '0'
+            donnees_creation_opposition["Date d'exécution"] = donnees_creation_opposition[
+                "Date d'exécution"].astype(str)
+            donnees_creation_opposition["Date d'exécution"] = '0'
+            donnees_creation_opposition["Dossiers traités"] = donnees_creation_opposition[
+                "Dossiers traités"].astype(str)
+            donnees_creation_opposition["Dossiers traités"] = '0'
             nb_ligne = donnees_creation_opposition.shape[0]
             ligne_incomplete = list()
             print("----------------------------------------------------------------------------")
             taille_donnee_entree = donnees_creation_opposition.shape[0]
+            donnees_creation_opposition['comparaison'] = donnees_creation_opposition.apply(
+                lambda x: True if x[6] <= x[7] else False, axis=1)
+            print("ligne 142", donnees_creation_opposition['comparaison'])
+            for i in range(nb_ligne):
+                # print()
+                if donnees_creation_opposition.drop(columns=[last_column, 'comparaison']).loc[i].isnull().any() or \
+                        donnees_creation_opposition["Date d’effet = date réception SATD"].loc[i] == 'NaT':
+                    ligne_incomplete.append('∅')
+                elif donnees_creation_opposition['comparaison'].loc[i] or \
+                        donnees_creation_opposition["N°affaire code 1760"].duplicated().loc[i] or \
+                        donnees_creation_opposition["Réf jugement validité = réf SATD"].duplicated().loc[i]:
+                    ligne_incomplete.append("M")
+                    # print(ligne_incomplete)
+                else:
+                    ligne_incomplete.append('')
+                    # print(donnees_creation_opposition.iloc[:, [7]])
+            donnees_creation_opposition["Dossiers traités"] = ligne_incomplete
+            print("ligne incomplete : ", ligne_incomplete)
+            donnees_creation_opposition.drop(["comparaison"], axis=1, inplace=True)
+            bad_df = donnees_creation_opposition[(donnees_creation_opposition["Dossiers traités"] == '∅') | (
+                    donnees_creation_opposition["Dossiers traités"] == 'M')].fillna(0)
+            old_data_df = pd.concat([donnees_creation_opposition_sortie, bad_df])
+            old_data = old_data_df.values.tolist()
+            print("les données non gardé ligne 186 \n", old_data)
+            data = donnees_creation_opposition[(donnees_creation_opposition["Dossiers traités"] != '∅') & (
+                    donnees_creation_opposition["Dossiers traités"] != 'M')].values.tolist()
+
+            print("les données d'entrée ligne 189 \n", data)
+            if not data:
+                messagebox.showinfo("Données Manquante", "Il n'y a pas de données exploitables. "
+                                                         "Veuillez vérifier le fichiers d'entrée")
+                exit()
+            else:
+                pass
+            nb_ligne = len(data)
+            print(nb_ligne)
             # print("Taille des données d'entrées :  \n", taille_donnee_entree)
             # print("----------------------------------------------------------------------------")
             # print("les données : \n", donnees_creation_opposition)
@@ -147,7 +195,7 @@ def create_opposition(headless):
             #             donnees_creation_opposition["Date d’effet = date réception SATD"].loc[i] == 'NaT':
             #         donnees_creation_opposition.drop(i, inplace=True)
             # taille_donnee_entree1 = donnees_creation_opposition.shape[0]
-            # print("Taille des données d'entrées après suppression lignes incomplétes : \n", taille_donnee_entree1)
+            # print("Taille des données d'entrées après suppression lignes incomplètes : \n", taille_donnee_entree1)
             # print("----------------------------------------------------------------------------")
             # print("les données après suppression des lignes incomplètes :  \n", donnees_creation_opposition)
             # print("----------------------------------------------------------------------------")
@@ -179,13 +227,14 @@ def create_opposition(headless):
             ligne_incomplete = list()
             donnees_creation_opposition['comparaison'] = donnees_creation_opposition.apply(
                 lambda x: True if x[6] <= x[7] else False, axis=1)
-            print("ligne 142", donnees_creation_opposition['comparaison'])
             for i in range(nb_ligne):
                 # print()
                 if donnees_creation_opposition.drop(columns=[last_column, 'comparaison']).loc[i].isnull().any() or \
                         donnees_creation_opposition["Date d’effet = date réception SATD"].loc[i] == 'NaT':
                     ligne_incomplete.append('∅')
-                elif donnees_creation_opposition['comparaison'].loc[i]:
+                elif donnees_creation_opposition['comparaison'].loc[i] or \
+                        donnees_creation_opposition["N°affaire code 1760"].duplicated().loc[i] or \
+                        donnees_creation_opposition["Réf jugement validité = réf SATD"].duplicated().loc[i]:
                     ligne_incomplete.append("M")
                     # print(ligne_incomplete)
                 else:
@@ -194,6 +243,7 @@ def create_opposition(headless):
             donnees_creation_opposition["Dossiers traités"] = ligne_incomplete
             print("ligne incomplete : ", ligne_incomplete)
             donnees_creation_opposition.drop(["comparaison"], axis=1, inplace=True)
+            print("data 238:", donnees_creation_opposition)
             old_df = donnees_creation_opposition[(donnees_creation_opposition["Dossiers traités"] == '∅') | (
                     donnees_creation_opposition["Dossiers traités"] == 'M')].fillna(0)
             old_data = old_df.values.tolist()
@@ -218,11 +268,48 @@ def create_opposition(headless):
         else:
             data[j][3] = data[j][3].strftime('%Y-%m-%d')
             print("Ligne 216:", type(data[j][3]))
-            try:
-                old_data[j][3] = old_data[j][3].strftime('%Y-%m-%d')
-            except:
+    if old_data:
+        for k in range(len(old_data)):
+            if isinstance(old_data[k][3], str) or old_data[k][3] == 0:
+                print("Ligne 262 :", type(old_data[k][3]))
                 pass
+            else:
+                old_data[k][3] = old_data[k][3].strftime('%Y-%m-%d')
+                print("Ligne 233:", type(old_data[k][3]))
 
+    # destination_rep1 = source_rep + '/sorties_SATD/sorties_SATD' + datetime.now().strftime('_%Y-%m-%d')
+    # saved_file = destination_rep1 + '/' + filename1
+    # if not os.path.exists(destination_rep1):
+    #     os.makedirs(destination_rep1)
+    # if os.path.exists(destination_rep1 + '/' + filename1):
+    #     # for i in range(len(old_data)):
+    #     #     old_data[i].insert(14, '')
+    #     #     old_data[i].insert(15, '')
+    #     print("old_data 2615 : \n", old_data)
+    #     del data[0]
+    #     print("data sans les entêtes (ligne 978)", data)
+    #     if not old_data:
+    #         data.insert(0, columns)
+    #     else:
+    #         numpyData = np.append(data, old_data, axis=0)
+    #         data = list(numpyData)
+    #         data.insert(0, columns)
+    #     print("listData : \n", data)
+    #     os.remove(destination_rep1 + '/' + filename1)
+    # else:
+    #
+    #     print("old_data 2631: \n", old_data)
+    #     del data[0]
+    #     print("data sans les entêtes (ligne 993)", data)
+    #     if not old_data:
+    #         data = data
+    #     else:
+    #         numpyData = np.append(data, old_data, axis=0)
+    #         data = list(numpyData)
+    #     data.insert(0, columns)
+    #     print("data_ods : \n", data)
+    #     print("pas 92 - ligne 2616 - Fin de boucle")
+    # save_data(saved_file, data)
     #########################################
 
     ## Saisie de numéro de dossier :
@@ -287,7 +374,7 @@ def create_opposition(headless):
     ## Boucle sur le fichier selon le nombre de lignes indiquées
     j = 0
     while True:
-        print(f"les données à la nouvelle ligne à la ligne 293: ", data)
+        print(f"les données à la nouvelle ligne à la ligne 377: ", data)
         time.sleep(delay)
         wd.find_element(By.ID, 'inputBmenuxBrmenx07CodeSaisieDirecte').send_keys('3')
         wd.find_element(By.ID, 'inputBmenuxBrmenx07CodeSaisieDirecte').send_keys(Keys.ENTER)
@@ -307,7 +394,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        print("N° de ligne à la ligne 308: ", j)
+        print("N° de ligne à la ligne 397: ", j)
         source_rep = os.getcwd()
         destination_rep = source_rep + '/archives_SATD/archive' + datetime.now().strftime('_%Y-%m-%d')
         num_of_secs = 360
@@ -320,7 +407,7 @@ def create_opposition(headless):
 
         ## Saisie numéro de Dossier
         while True:
-            print(f"numéro de dossier pour la ligne {j} à ligne 321: ", data[j][0])
+            print(f"numéro de dossier pour la ligne {j} à ligne 410: ", data[j][0])
             time.sleep(delay)
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.ID, 'inputYrdos211NumeroDeDossier')))
             wd.find_element(By.ID, 'inputYrdos211NumeroDeDossier').send_keys(data[j][0])
@@ -354,7 +441,7 @@ def create_opposition(headless):
             # exit()
 
         ## Saisie du choix Créer
-        print(f"les données à la nouvelle ligne {j} à la ligne 360: ", data[j])
+        print(f"les données à la nouvelle ligne {j} à la ligne 444: ", data[j])
         try:
             time.sleep(delay)
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.ID, 'inputB33gmenuYa33Gch1ChoixCMAI')))
@@ -715,7 +802,7 @@ def create_opposition(headless):
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys('AFF')
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys(Keys.ENTER)
-            print("pas 1 - ligne 722")
+            print("pas 1 - ligne 799")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -730,7 +817,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF').send_keys(Keys.ENTER)
-            print("pas 2 - ligne 737")
+            print("pas 2 - ligne 814")
 
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
@@ -750,7 +837,7 @@ def create_opposition(headless):
                 data[j][7])
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(
                 Keys.ENTER)
-            print("pas 3 - ligne 757")
+            print("pas 3 - ligne 834")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -772,7 +859,7 @@ def create_opposition(headless):
             wd.find_element(By.ID,
                             'repeatBcimp01:0:inputBciddepPc8IdentIndentificationBeneficiaireDep').send_keys(
                 Keys.ENTER)
-            print("pas 4 - ligne 779")
+            print("pas 4 - ligne 856")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -789,7 +876,7 @@ def create_opposition(headless):
                 EC.presence_of_element_located((By.ID, 'inputBcaff03Nuaff1NumeroAffaire')))
             wd.find_element(By.ID, 'inputBcaff03Nuaff1NumeroAffaire').send_keys(data[j][5])
             print("numèro affaire:", data[j][5])
-            print("pas 5 - ligne 795")
+            print("pas 5 - ligne 873")
             time.sleep(delay)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
@@ -807,7 +894,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff03LaffAffLibelleAffaire')))
             wd.find_element(By.ID, 'inputBcaff03LaffAffLibelleAffaire').send_keys(Keys.ENTER)
-            print("pas 6 - ligne 811")
+            print("pas 6 - ligne 891")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -819,24 +906,28 @@ def create_opposition(headless):
 
         # Saisir le code R27 "7370"
         try:
-
-            # WebDriverWait(wd, 40).until(
-            #     EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi')))
-            # wd.find_element(By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi').send_keys(Keys.ENTER)
-
+            time.sleep(delay)
+            time.sleep(delay)
+            WebDriverWait(wd, 40).until(
+                EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi')))
+            wd.find_element(By.ID, 'inputBcaff01Bcaff01PNumeroLigneSaisi').send_keys(Keys.ENTER)
+            print("ligne 832")
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01RMontantSaisi')))
             time.sleep(delay)
+            print("ligne 836")
             wd.find_element(By.ID, 'inputBcaff01Bcaff01RMontantSaisi').send_keys(Keys.ENTER)
             time.sleep(delay)
+            print("ligne 839")
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01SValidationOperateur')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys('O')
             wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys(Keys.ENTER)
-            WebDriverWait(wd, 40).until(
-                EC.presence_of_element_located((By.ID, 'inputBcaff12Bcaff121ValidationON')))
-            wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys('O')
-            wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys(Keys.ENTER)
+            time.sleep(delay)
+            # WebDriverWait(wd, 40).until(
+            #     EC.presence_of_element_located((By.ID, 'inputBcaff12Bcaff121ValidationON')))
+            # wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys('O')
+            # wd.find_element(By.ID, 'inputBcaff12Bcaff121ValidationON').send_keys(Keys.ENTER)
             print("pas 7 - ligne 840")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
@@ -851,8 +942,18 @@ def create_opposition(headless):
         try:
             time.sleep(delay)
             time.sleep(delay)
+            time.sleep(delay)
+            time.sleep(delay)
+            # credit_script = f''' let event = {enter}; numero_ligne = document.getElementById(
+            # 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI'); numero_ligne.dispatchEvent(event); '''
+            # wd.execute_script(credit_script)
+            # input_list = wd.find_elements(By.ID,'bcaff01AffectationMvtsAUneAffairePanel')
+            # print("liste des éléments : ",input_list)
+
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI')))
+            print("ok")
+            time.sleep(delay)
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp011ActionCSOuI').send_keys(Keys.ENTER)
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01CcompteNumeroCompteXxxXx')))
@@ -1030,6 +1131,7 @@ def create_opposition(headless):
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01RMontantSaisi')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01RMontantSaisi').send_keys(data[j][7])
             wd.find_element(By.ID, 'inputBcaff01Bcaff01RMontantSaisi').send_keys(Keys.ENTER)
+            time.sleep(delay)
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01SValidationOperateur')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys('O')
@@ -1168,9 +1270,19 @@ def create_opposition(headless):
             err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Fin de la transaction 21-2 et retour à la page d'accueil
-        WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.ID, 'inputBcvcs03Ycvcs014DemandeSuite')))
-        wd.find_element(By.ID, 'barre_outils:image_f2').click()
-        print("pas 24 - ligne 1173")
+        try:
+            time.sleep(delay)
+            WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.ID, 'barre_outils:image_f2')))
+            wd.find_element(By.ID, 'barre_outils:image_f2').click()
+            print("pas 24 - ligne 1274")
+        except TimeoutException:
+            messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
+            wd.find_element(By.ID, 'barre_outils:touche_f2').click()
+            wd.close()
+        except:
+            progressbar_label.destroy()
+            err.error_message(wd=webdriver.Firefox(options=wd_options))
 
         # Saisir la transaction 21-2
         ## Saisie de la transaction 21-2
@@ -1314,6 +1426,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01RMontantSaisi')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01RMontantSaisi').send_keys(Keys.ENTER)
+            time.sleep(delay)
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01SValidationOperateur')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys('O')
@@ -2573,20 +2686,11 @@ def create_opposition(headless):
         progressbar_label.place(x=250, y=label_y)
         pb.update()
         tab6.update()
-        print("le N° de ligne est  à la ligne 2160:", j)
         print("les données à la nouvelle ligne : ", data[j])
         data_ods = data
-        columns = ["FRP société", "FRP opposant", "Montant opposition", "Date d’effet = date réception SATD",
-                   "Réf jugement validité = réf SATD", "N°affaire code 1760",
-                   "Montant de l’affaire au code 1760", "Montant à créer en «affaire service» au code 7055",
-                   "Identification du bénéficiaire de la dépense", "Codique du service bénéficiaire",
-                   "RANG RIB pour le remboursement du service bénéficiaire",
-                   "RANG RIB pour le remboursement à la société",
-                   "SIREN du redevable pour le libellé du virement pour la société",
-                   "Numéro et date de l'opération de dépense effectuée dans Médoc pour paiement du poste "
-                   "comptable RNF ayant émis la SATD ", "Numéro d'Opération", "Date d'exécution", "Dossiers traités"]
-        data_ods.insert(0, columns)
-        print("les nouvelles data : \n", data)
+
+        data_ods.insert(0, columns_sortie)
+        print("les nouvelles data 2605: \n", data)
         # source_rep = os.getcwd()
         destination_rep1 = source_rep + '/sorties_SATD/sorties_SATD' + datetime.now().strftime('_%Y-%m-%d')
         saved_file = destination_rep1 + '/' + filename1
@@ -2596,15 +2700,15 @@ def create_opposition(headless):
             # for i in range(len(old_data)):
             #     old_data[i].insert(14, '')
             #     old_data[i].insert(15, '')
-            print("old_data : \n", old_data)
+            print("old_data 2615 : \n", old_data)
             del data_ods[0]
             print("data sans les entêtes (ligne 978)", data_ods)
             if not old_data:
-                data_ods.insert(0, columns)
+                data_ods.insert(0, columns_sortie)
             else:
                 numpyData = np.append(data_ods, old_data, axis=0)
                 data_ods = list(numpyData)
-                data_ods.insert(0, columns)
+                data_ods.insert(0, columns_sortie)
             print("listData : \n", data_ods)
             os.remove(destination_rep1 + '/' + filename1)
         else:
@@ -2612,7 +2716,7 @@ def create_opposition(headless):
             #     if old_data[i][14] == '' & old_data[i][15] == '':
             #         del old_data[i][14]
             #         del old_data[i][15]
-            print("old_data : \n", old_data)
+            print("old_data 2631: \n", old_data)
             del data_ods[0]
             print("data sans les entêtes (ligne 993)", data_ods)
             if not old_data:
@@ -2620,7 +2724,7 @@ def create_opposition(headless):
             else:
                 numpyData = np.append(data_ods, old_data, axis=0)
                 data_ods = list(numpyData)
-            data_ods.insert(0, columns)
+            data_ods.insert(0, columns_sortie)
             print("data_ods : \n", data_ods)
             print("pas 92 - ligne 2616 - Fin de boucle")
         save_data(saved_file, data_ods)
@@ -2628,7 +2732,7 @@ def create_opposition(headless):
             j += 1
         else:
             break
-    del data[0]
+
     data_df = pd.DataFrame(data_ods)
 
     print("le dataframe : ", data_df)
@@ -2637,7 +2741,7 @@ def create_opposition(headless):
         time.sleep(delay)
         time.sleep(delay)
         time.sleep(delay)
-        tabControl.add(tab4, text='liste des oppositions')
+        tabControl.add(tab4, text='Liste SATD en sortie de traitement')
         table1 = Table(tab4, dataframe=data_df, read_only=True, index=FALSE)
         table1.place(y=120)
         table1.autoResizeColumns()
@@ -2675,7 +2779,7 @@ def open_file():
         df = pd.read_excel(filepath)
         nb_ligne = df.shape[0]
         s = 's' if nb_ligne > 1 else ''
-        messagebox.showinfo("Création d'opposition", 'Votre fichier contient ' + str(nb_ligne) + ' ligne' + s + '.')
+        messagebox.showinfo("SATD", 'Votre fichier contient ' + str(nb_ligne) + ' ligne' + s + '.')
         print('Votre fichier contient ' + str(nb_ligne) + ' ligne' + s + '.')
     filename1 = 'donnees_sortie_' + datetime.now().strftime('_%Y-%m-%d') + '.ods'
     filepath1 = source_rep + '/sorties_SATD/sorties_SATD' + datetime.now().strftime('_%Y-%m-%d') + '/' + filename1
@@ -2698,9 +2802,9 @@ def open_file():
             try:
                 time.sleep(2)
                 tab5 = Frame(tabControl, bg='#E3EBD0')
-                tabControl.add(tab5, text='liste des oppositions déjà effectuées')
+                tabControl.add(tab5, text='liste des SATD déjà effectuées')
                 sub_df2 = df1[(df1['Dossiers traités'] == success) | (df1['Dossiers traités'] == '∅') | (
-                            df1['Dossiers traités'] == 'M')]
+                        df1['Dossiers traités'] == 'M')]
                 # df1['Date d’effet = date réception SATD'] = df['Date d’effet = date réception SATD'].dt.strftime(
                 #     '%d-%m-%Y')
                 table = Table(tab5, dataframe=sub_df2, read_only=True, index=FALSE)
@@ -2728,11 +2832,19 @@ def open_file():
     #     messagebox.showinfo("Création d'opposition", "Aucune opération n'a été effectué pour l'instant !")
     print(df)
     for i in range(df.shape[0]):
-        last_colonne = "Numéro et date de l'opération de dépense effectuée dans Médoc pour paiement du poste comptable RNF ayant émis la SATD "
+        last_colonne = "Numéro et date de l'opération de dépense effectuée dans Médoc pour paiement du poste " \
+                       "comptable RNF ayant émis la SATD "
         if df.drop(columns=[last_colonne]).loc[i].isnull().any():
             message = "la ligne {} du tableau comporte une ou plusieurs données obligatoires manquantes.\n Cette " \
                       "ligne ne sera pas traitée et sera marquée dans la colonne \"Dossiers traités\" par le symbole " \
                       "\"∅\". \n Vous pouvez renseigner les champs manquants avant de lancer l'automate.".format(i + 1)
+            messagebox.showwarning("Données manquantes", message)
+        elif df["N°affaire code 1760"].duplicated().loc[i] or df["Réf jugement validité = réf SATD"].duplicated().loc[
+            i]:
+            message = "la ligne {} du tableau comporte ne comporte pas d'identifiant unique dans la colonne « Réf " \
+                      "jugement validité = réf SATD » et ou la colonne « N°affaire code 1760 ». Cette ligne doit être " \
+                      "traitée manuellement et sera marquée dans la colonne \"Dossiers traités\" par le symbole " \
+                      "\"M\".".format(i + 1)
             messagebox.showwarning("Données manquantes", message)
 
 
@@ -2780,7 +2892,7 @@ EnterTable9 = StringVar()
 EnterTable10 = StringVar()
 buttonFont = font.Font(family='Tahoma', size=15)
 question = '\U0000003F'
-
+# TODO :enlever le code cadenas vérrouillé
 lexique = "Précisions sur les symboles affichés en colonne \"Dossiers traités\" du fichier de sortie :\n" \
           "\n● Le symbole \"\u2713\" indique que la SATD a été traitée jusqu'à la mainlevée." \
           "\n● Le symbole \"∅\" indique qu'une ou plusieurs données obligatoires sont manquantes sur la ligne, ce qui " \
