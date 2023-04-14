@@ -1,0 +1,21 @@
+root - INFO - heure de démarrage de l'application : "17:07:02");
+root - INFO - ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Automate SATD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+root - INFO - ----------------------------------------------------------------------------------------------------------
+root - INFO - heure de démarrage de l'application : "17:08:51");
+root - INFO - ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Automate SATD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+root - INFO - ----------------------------------------------------------------------------------------------------------
+root - INFO - heure de démarrage de l'application : "17:09:59");
+root - INFO - ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Automate SATD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+root - INFO - ----------------------------------------------------------------------------------------------------------
+root - ERROR - Une exception est apparu
+Traceback (most recent call last):
+  File "C:\Users\meddb-jean-francoi01\Documents\application_gestion_flux_satd\application_gestion_des_flux_satd.py", line 382, in create_opposition
+    wd.find_element(By.ID, 'habilitation').send_keys(Keys.ENTER)
+  File "C:\Users\meddb-jean-francoi01\AppData\Roaming\Python\Python310\site-packages\selenium\webdriver\remote\webdriver.py", line 830, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+  File "C:\Users\meddb-jean-francoi01\AppData\Roaming\Python\Python310\site-packages\selenium\webdriver\remote\webdriver.py", line 440, in execute
+    self.error_handler.check_response(response)
+  File "C:\Users\meddb-jean-francoi01\AppData\Roaming\Python\Python310\site-packages\selenium\webdriver\remote\errorhandler.py", line 245, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.WebDriverException: Message: Failed to decode response from marionette
+
