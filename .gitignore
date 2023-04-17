@@ -4,9 +4,9 @@
 !/geckodriver.exe
 !/msedgedriver.exe
 *.ods
-/build/
-/dist/
-/entrees_SATD/
-/sorties_SATD/
-/venv/
-/archives_SATD/
+build/
+dist/
+entrees_SATD/
+sorties_SATD/
+venv/
+archives_SATD/
