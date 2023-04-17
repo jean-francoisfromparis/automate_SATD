@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 from pyexcel_ods import save_data
 
-
 class Saved_file:
     def saved_file(self, filename, j, data, rep, columns):
         if not os.path.exists(rep):

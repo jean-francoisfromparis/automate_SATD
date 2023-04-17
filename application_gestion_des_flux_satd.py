@@ -12,9 +12,10 @@ from tkinter.ttk import Progressbar
 
 import numpy as np
 import pandas as pd
+import unicodedata
 from pandastable import Table
-from pyexcel_ods import save_data
 from pynput.mouse import Controller
+from pyexcel_ods import save_data
 from selenium import webdriver
 from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
@@ -25,15 +26,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from _utils.error_message import ErrorMessage
 from _utils.save_file import Saved_file
 
+sys.stdin.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding='utf-8')
 # import logging
 
 mouse = Controller()
 global success
-success = '\u2713'
-success = success.encode("utf-8")
+success = '✓'
 global vide
-vide = "\u2205"
-vide = vide.encode("utf-8")
+vide = "∅"
 
 global enter
 enter = "new KeyboardEvent('keydown', {altKey:false,bubbles: true, cancelBubble: false,cancelable: true," \
