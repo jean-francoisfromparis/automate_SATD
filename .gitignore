@@ -2,8 +2,6 @@
 /geckodriver.log!/msedgedriver.exe
 !/geckodriver.log
 !/geckodriver.exe
-!/archives_SATD/
-!/automate_SATD.log
 !/msedgedriver.exe
 *.ods
 /build/
