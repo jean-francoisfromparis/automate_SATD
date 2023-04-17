@@ -5,3 +5,10 @@
 !/archives_SATD/
 !/automate_SATD.log
 !/msedgedriver.exe
+*.ods
+/build/
+/dist/
+/entrees_SATD/
+/sorties_SATD/
+/venv/
+/archives_SATD/
