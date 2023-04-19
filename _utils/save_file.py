@@ -9,9 +9,9 @@ class Saved_file:
     def saved_file(self, filename, j, data, rep, columns):
         if not os.path.exists(rep):
             os.makedirs(rep)
+            print("data", data[j])
         data[j][15] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         data[j][16] = 'M'
-
         if os.path.exists(filename):
             f = open(filename, 'a')
             f.close()

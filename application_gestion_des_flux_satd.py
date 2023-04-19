@@ -67,7 +67,7 @@ def create_opposition(headless):
 
     err = ErrorMessage()
     sav = Saved_file()
-    delay = 3
+    delay = 4
     message_service_interrompu = "\nLa qualité de la connexion ne permet pas un bon fonctionnement de l'automate. " \
                                  "Veuillez essayer ultérieurement ! "
     # Definition du repertoire de sauvegarde du fichier de sortie
@@ -88,7 +88,7 @@ def create_opposition(headless):
     ## Saisie du nom utilisateur et mot de passe
 
     while True:
-        login = EnterTable4.get()
+        login = EnterTable4.get().lower()
         if login:  ##vérifie que ça soit un numéro
             break
         else:
@@ -319,11 +319,11 @@ def create_opposition(headless):
     # Conversion du champ date[j][3] en string
     for j in range(nb_ligne):
         if isinstance(data[j][3], str):
-            print("Ligne 212:", type(data[j][3]))
+            print("Ligne 322:", type(data[j][3]))
             pass
         else:
             data[j][3] = data[j][3].strftime('%Y-%m-%d')
-            print("Ligne 216:", type(data[j][3]))
+            print("Ligne 326:", type(data[j][3]))
     if old_data:
         for k in range(len(old_data)):
             if isinstance(old_data[k][3], str) or old_data[k][3] == 0:
@@ -331,7 +331,7 @@ def create_opposition(headless):
                 pass
             else:
                 old_data[k][3] = old_data[k][3].strftime('%Y-%m-%d')
-                print("Ligne 233:", type(old_data[k][3]))
+                print("Ligne 334:", type(old_data[k][3]))
     # exit()
     wd_options = webdriver.FirefoxOptions()
     if headless:
@@ -413,7 +413,7 @@ def create_opposition(headless):
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        print("N° de ligne à la ligne 397: ", j)
+        print("N° de ligne à la ligne 416: ", j)
         num_of_secs = 540
         min, sec = divmod(num_of_secs * 3, 60)
         hour, min = divmod(min, 60)
@@ -428,7 +428,7 @@ def create_opposition(headless):
 
         ## Saisie numéro de Dossier
         while True:
-            print(f"numéro de dossier pour la ligne {j} à ligne 410: ", data[j][0])
+            print(f"numéro de dossier pour la ligne {j} à ligne 431: ", data[j][0])
             time.sleep(delay)
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.ID, 'inputYrdos211NumeroDeDossier')))
             wd.find_element(By.ID, 'inputYrdos211NumeroDeDossier').send_keys(data[j][0])
@@ -458,10 +458,10 @@ def create_opposition(headless):
                 j = j + 1
             else:
                 break
-            print("le N° de ligne est à la ligne 341 :", j)
+            print("le N° de ligne est à la ligne 461 :", j)
 
         ## Saisie du choix Créer
-        print(f"les données à la nouvelle ligne {j} à la ligne 444: ", data[j])
+        print(f"les données à la nouvelle ligne {j} à la ligne 464: ", data[j])
         try:
             time.sleep(delay)
             WebDriverWait(wd, 60).until(EC.presence_of_element_located((By.ID, 'inputB33gmenuYa33Gch1ChoixCMAI')))
@@ -513,14 +513,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33gsuitYa33G002ReponseSuite').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## SAISIE DES REFERENCES DE L'OPPOSITION
         ## Transport de créance
@@ -532,14 +530,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33ginf2Ya33GtrcrTransportCreance').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Saisie ATD
         try:
@@ -549,14 +545,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33ginf2Ya33GadtAdt').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Saisie du crédit
         try:
@@ -566,14 +560,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33ginf2Ya33GcredCreditIs').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Saisie Empêchement
         try:
@@ -583,14 +575,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33ginf2Ya33GempEmpechement').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Saisie Montant
         try:
@@ -601,14 +591,12 @@ def create_opposition(headless):
             # print(data[i][2])
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Saisie de la Date d'Effet
         print(type(data[j][3]))
@@ -626,14 +614,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33ginf2Ya33GdtefDateEffetJour').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Saisie du Mois d'Effet
         try:
@@ -643,14 +629,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33ginf2Ya33GdtefDateEffetMois').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Saisie de l'Année d'Effet
         try:
@@ -660,14 +644,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33ginf2Ya33GdtefDateEffetAnnee').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Saisie de la référence de jugement
         try:
@@ -679,14 +661,12 @@ def create_opposition(headless):
             # print(data[i][4])
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Saisie de la date d'exécution de jugement
         try:
@@ -706,14 +686,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33ginf2Ya33GdjuvDateExecutionJugementAnnee').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Saisie de la date de renouvellement
         try:
@@ -733,14 +711,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33ginf2Ya33GdtreDateRenouvellementAnnee').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Validation de la non saisie des dates
         try:
@@ -751,14 +727,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33ginf2Ya33GdtreDateRenouvellementAnnee').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Validation de la suite
         try:
@@ -769,14 +743,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33gsuprYa33G007ReponseSuitePrec').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Validation de la saisie de l'opposition
         try:
@@ -787,14 +759,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33gvlcrYa33GvalcValidationCreation').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Capture numéro d'opération
         try:
@@ -803,14 +773,12 @@ def create_opposition(headless):
             numero_ope = wd.find_element(By.ID, 'outputB33gnopeYa33GnopeNOpe').text
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Saisie de la fin de la phase 1bis
         try:
@@ -821,14 +789,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33gnouvYa33GnvopNouvelleOpposition').send_keys(Keys.TAB)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         ## Début de la phase 2
         time.sleep(delay)
@@ -849,14 +815,12 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputBmenuxBrmenx051ErCaractereSaisi').send_keys('2')
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Création affaire service au code R17 "7055"
         # Saisie de la nature "AFF" pour debit 473-0
@@ -869,14 +833,12 @@ def create_opposition(headless):
             print("pas 1 - ligne 799")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du type de montant
         try:
@@ -887,14 +849,12 @@ def create_opposition(headless):
 
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du montant X
         try:
@@ -905,17 +865,15 @@ def create_opposition(headless):
                 data[j][7])
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp018MontantImputation').send_keys(
                 Keys.ENTER)
-            print("pas 3 - ligne 834")
+            print("pas 3 - ligne 868")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir une identification
         try:
@@ -932,14 +890,12 @@ def create_opposition(headless):
             print("pas 4 - ligne 856")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du numéro d'affaire
         try:
@@ -952,14 +908,12 @@ def create_opposition(headless):
             time.sleep(delay)
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Confirmer le libelle de l'affaire
         try:
@@ -971,14 +925,12 @@ def create_opposition(headless):
             print("pas 6 - ligne 891")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir le code R27 "7370"
         try:
@@ -1007,14 +959,12 @@ def create_opposition(headless):
             print("pas 7 - ligne 840")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir le numéro du compte 477-0
         try:
@@ -1041,14 +991,12 @@ def create_opposition(headless):
             print("pas 8 - ligne 857")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir la nature "AFF" pour crédit 477-0
         try:
@@ -1060,14 +1008,12 @@ def create_opposition(headless):
             print("pas 9 - ligne 874")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du type de montant
         try:
@@ -1078,14 +1024,12 @@ def create_opposition(headless):
             print("pas 10 - ligne 890")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du montant X
         try:
@@ -1099,14 +1043,12 @@ def create_opposition(headless):
             print("pas 11 - ligne 909")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie la date comptable
         # Capture et réutilisation de la date journée comptable
@@ -1134,31 +1076,28 @@ def create_opposition(headless):
             print("pas 12 - ligne 936")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du numéro d'affaire
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff03Nuaff1NumeroAffaire')))
             wd.find_element(By.ID, 'inputBcaff03Nuaff1NumeroAffaire').send_keys(Keys.ENTER)
             print("pas 13 - ligne 951")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie le numéro de dossier
         try:
@@ -1178,14 +1117,12 @@ def create_opposition(headless):
             print("pas 14 - ligne 973")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du libellé
         try:
@@ -1198,17 +1135,15 @@ def create_opposition(headless):
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff03LaffAffLibelleAffaire')))
             wd.find_element(By.ID, 'inputBcaff03LaffAffLibelleAffaire').send_keys(Keys.ENTER)
-            print("pas 15 - ligne 1000")
+            print("pas 15 - ligne 1138")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir le code R27 "7055"
         try:
@@ -1229,34 +1164,31 @@ def create_opposition(headless):
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcaff01Bcaff01SValidationOperateur')))
             wd.find_element(By.ID, 'inputBcaff01Bcaff01SValidationOperateur').send_keys('O')
-            print("pas 16 - ligne 1017")
+            print("pas 16 - ligne 1167")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Validation de la transaction
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputBcvim01Ycvim013ReponseOperateur')))
             wd.find_element(By.ID, 'inputBcvim01Ycvim013ReponseOperateur').send_keys('O')
             print("pas 17 - ligne 1032")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Création d'une liste temporaire avec numéro d'ordre de dépenses, le numéro de l'affaire créée et le numéro
         # de l'opération Le numéro de l'opération est divisé sur deux cellules dans MEDOC Cette liste sera finalement
@@ -1266,6 +1198,7 @@ def create_opposition(headless):
 
         # Numéro de l'ordre de dépense 1
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.ID, 'outputBcvcs04Ycvcs022NoDepense')))
             # Numéro de l'ordre de dépense indice #2 dans liste_temporaire_data
             WebDriverWait(wd, 40).until(
@@ -1274,33 +1207,31 @@ def create_opposition(headless):
             print("pas 18 - ligne 1056")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Pour afficher la suite
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.ID, 'inputBcvcs04Ycvcs028Reponse')))
             wd.find_element(By.ID, 'inputBcvcs04Ycvcs028Reponse').send_keys(Keys.ENTER)
             print("pas 19 - ligne 1070")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Numéro de l'affaire créée
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'outputBcvcs04Ycvcs021NumAffaireCreee')))
             # Numéro de l'affaire créée indice #3 dans liste_temporaire_data
@@ -1309,14 +1240,12 @@ def create_opposition(headless):
             print("pas 20 - ligne 1087")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         if liste_temporaire_data[3] != numero_affaire_creee or liste_temporaire_data[3] == '':
             time.sleep(delay)
@@ -1334,17 +1263,16 @@ def create_opposition(headless):
             print("pas 21 - ligne 1110")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Numero de l'opération 1
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.ID, 'labelBcvcs032')))
             # Numero de l'opération indice #4 dans liste_temporaire_data
             liste_temporaire_data.append(
@@ -1353,14 +1281,12 @@ def create_opposition(headless):
             print("pas 22 - ligne 1127")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Pour afficher la suite
         try:
@@ -1370,14 +1296,12 @@ def create_opposition(headless):
             print("pas 23 - ligne 1152")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Fin de la transaction 21-2 et retour à la page d'accueil
         try:
@@ -1387,14 +1311,12 @@ def create_opposition(headless):
             print("pas 24 - ligne 1274")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir la transaction 21-2
         ## Saisie de la transaction 21-2
@@ -1433,14 +1355,12 @@ def create_opposition(headless):
             print("pas 26 - ligne 1199")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du type de montant
         try:
@@ -1451,14 +1371,12 @@ def create_opposition(headless):
             print("pas 27 - ligne 1215")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du montant X
         try:
@@ -1474,14 +1392,12 @@ def create_opposition(headless):
             print("pas 28 - ligne 1226")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir une identification
         try:
@@ -1496,14 +1412,12 @@ def create_opposition(headless):
             print("pas 29 - ligne 1244")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir le numéro d'affaire créée précédemment
         try:
@@ -1514,14 +1428,12 @@ def create_opposition(headless):
             print("pas 30 - ligne 1260")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Confirmer le libelle de l'affaire
         try:
@@ -1532,14 +1444,12 @@ def create_opposition(headless):
             print("pas 31 - ligne 1276")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir le code R27 "8755"
         try:
@@ -1557,14 +1467,12 @@ def create_opposition(headless):
             print("pas 32 - ligne 1298")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Répondre à la question "Soldez-vous l'affaire ?"
         try:
@@ -1575,14 +1483,12 @@ def create_opposition(headless):
             print("pas 33 - ligne 1314")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Valider CREDIT
         try:
@@ -1597,14 +1503,12 @@ def create_opposition(headless):
             print("pas 34 - ligne 1346")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir la nature "OVIRT"
         try:
@@ -1618,14 +1522,12 @@ def create_opposition(headless):
             print("pas 35 - ligne 1352")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir ENTREE pour type de montant
         try:
@@ -1636,14 +1538,12 @@ def create_opposition(headless):
             print("pas 36 - ligne 1368")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du montant X
         try:
@@ -1657,14 +1557,12 @@ def create_opposition(headless):
             print("pas 37 - ligne 1400")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du codique du service bénéficiaire
         try:
@@ -1684,14 +1582,12 @@ def create_opposition(headless):
             print("pas 38 - ligne 1416")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Appuyer sur Entrer pour continuer
         try:
@@ -1702,14 +1598,12 @@ def create_opposition(headless):
             print("pas 39 - ligne 1435")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Validation de la transaction
         try:
@@ -1720,14 +1614,12 @@ def create_opposition(headless):
             print("pas 40 - ligne 1451")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Numéro de l'ordre de dépense 2
         try:
@@ -1739,14 +1631,12 @@ def create_opposition(headless):
             print("pas 41 - ligne 1452")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Pour afficher la suite
         try:
@@ -1757,14 +1647,12 @@ def create_opposition(headless):
             print("pas 42 - ligne 1468")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Numéro de l'opération 2
         try:
@@ -1781,14 +1669,12 @@ def create_opposition(headless):
             print("pas 43 - ligne 1491")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Pour afficher la suite
         try:
@@ -1798,14 +1684,12 @@ def create_opposition(headless):
             print("pas 44 - ligne 1506")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Fin de la transaction 21-2 et retour à la page d'accueil
         time.sleep(delay)
@@ -1828,24 +1712,18 @@ def create_opposition(headless):
 
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir le numéro d'affaire à partir des données d'entrées
         try:
             time.sleep(delay)
             time.sleep(delay)
             time.sleep(delay)
-            # WebDriverWait(wd, 40).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[6]/form[4]/div/div[3]/table/tbody/tr[2]/td[4]/input')))
-            # wd.find_element(By.XPATH, '/html/body/div[2]/div[6]/form[4]/div/div[3]/table/tbody/tr[2]/td[4]/input').send_keys(data[j][5])
-            # xpath = //*[@id="inputBrsdo03Nuaff1NumeroAffaire"]
-            # xPath complet = /html/body/div[2]/div[6]/form[4]/div/div[3]/table/tbody/tr[2]/td[4]/input
             set_numero_affaire = f'''document.getElementById('inputBrsdo03Nuaff1NumeroAffaire').setAttribute('value','{data[j][5]}'); '''
             wd.execute_script(set_numero_affaire)
             time.sleep(delay)
@@ -1858,14 +1736,12 @@ def create_opposition(headless):
             print("pas 47 - ligne 1578")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir le type de l'affaire "64"
         try:
@@ -1876,14 +1752,12 @@ def create_opposition(headless):
             print("pas 48 - ligne 1593")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Récuperer le nouveau solde de l'affaire au code 1760 et enregistrer le sous indice #7 dans liste_temporaire_data
         try:
@@ -1895,14 +1769,12 @@ def create_opposition(headless):
             print("pas 49 - ligne 1576")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Récupérer le nom de l'entreprise à rembourser et enregistrer le dans une liste temporaire
         liste_tempo_nom_entreprise = [str(data[j][0])]
@@ -1924,14 +1796,12 @@ def create_opposition(headless):
             print("pas 51 - ligne 1602")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Pour afficher la suite encore une fois en cas de besoin
         try:
@@ -1942,14 +1812,12 @@ def create_opposition(headless):
             print("pas 52 - ligne 1617")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Fin de la transaction 3-8-2 et retour à la page d'accueil
         time.sleep(delay)
@@ -1985,47 +1853,39 @@ def create_opposition(headless):
 
         # Saisir la nature "AFF" pour debit 473-0
         try:
-            WebDriverWait(wd, 10).until(
+            time.sleep(delay)
+            WebDriverWait(wd, 30).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys('AFF')
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp013NatureSaisie').send_keys(Keys.ENTER)
             print("pas 55 - ligne 1661")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du type de montant
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 10).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01YcimpdevCEstDeviseEOuF').send_keys(Keys.ENTER)
             print("pas 56 - ligne 1676")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du montant X
         montant = liste_temporaire_data[7].replace('+', '')
-        # WebDriverWait(wd, 10).until(
-        #     EC.presence_of_element_located(
-        #         (By.XPATH, '/html/body/div[2]/div[6]/form[4]/div/div[3]/table[1]/tbody/tr[3]/td[18]/input')))
-        # wd.find_element(By.XPATH,
-        #                 '/html/body/div[2]/div[6]/form[4]/div/div[3]/table[1]/tbody/tr[3]/td[18]/input').send_keys(
-        #     montant)
         time.sleep(delay)
         time.sleep(delay)
         time.sleep(delay)
@@ -2054,14 +1914,12 @@ def create_opposition(headless):
             print("pas 58 - ligne 1710")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du numéro d'affaire créée précédemment
         try:
@@ -2072,14 +1930,12 @@ def create_opposition(headless):
             print("pas 59 - ligne 1725")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Confirmer le libelle de l'affaire
         try:
@@ -2090,14 +1946,12 @@ def create_opposition(headless):
             print("pas 60 - ligne 1740")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir le code R27 "7370"
         try:
@@ -2114,14 +1968,12 @@ def create_opposition(headless):
             print("pas 61 - ligne 1810")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Répondre à la question "Soldez-vous l'affaire ?"
         try:
@@ -2132,14 +1984,12 @@ def create_opposition(headless):
             print("pas 62 - ligne 1826")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Valider CREDIT
         try:
@@ -2150,14 +2000,12 @@ def create_opposition(headless):
             print("pas 63 - ligne 1842")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir le numéro du compte 512-96
         try:
@@ -2168,14 +2016,12 @@ def create_opposition(headless):
             print("pas 64 - ligne 1858")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie de la nature "VIRT"
         try:
@@ -2187,14 +2033,12 @@ def create_opposition(headless):
             print("pas 65 - ligne 1875")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du type de montant
         try:
@@ -2205,14 +2049,12 @@ def create_opposition(headless):
             print("pas 66 - ligne 1838")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du montant X
         try:
@@ -2225,28 +2067,16 @@ def create_opposition(headless):
             print("pas 67 - ligne 1855")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie de la date du jour comptable
         try:
             time.sleep(delay)
-            # WebDriverWait(wd, 40).until(
-            #     EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation')))
-            # wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation').send_keys(djc[0])
-            # WebDriverWait(wd, 40).until(
-            #     EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation')))
-            # wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016MoisDateImputation').send_keys(djc[1])
-            # WebDriverWait(wd, 40).until(
-            #     EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation')))
-            # wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation').send_keys(djc[2])
-            # wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation').send_keys(Keys.ENTER)
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016JourDateImputation').send_keys(Keys.ENTER)
@@ -2256,35 +2086,32 @@ def create_opposition(headless):
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation')))
             wd.find_element(By.ID, 'repeatBcimp01:0:inputBcimp01Ycimp016AnneeDateImputation').send_keys(Keys.ENTER)
-            print("pas 68 - ligne 1876")
+            print("pas 68 - ligne 2089")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisie du numéro de dossier
         try:
             time.sleep(delay)
+            time.sleep(delay)
             WebDriverWait(wd, 40).until(
                 EC.presence_of_element_located((By.ID, 'inputYrdos211NumeroDeDossier')))
             wd.find_element(By.ID, 'inputYrdos211NumeroDeDossier').send_keys(data[j][0])
-            print("pas 69 - ligne 1891")
+            print("pas 69 - ligne 2277")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Continuer en cas d'existence de ce message : ATTENTION - OPPOSITION POUR CE DOSSIER
         try:
@@ -2295,14 +2122,12 @@ def create_opposition(headless):
             print("pas 70 - ligne 1988")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Continuer en cas d'existence de RAR
         try:
@@ -2321,14 +2146,12 @@ def create_opposition(headless):
             print("pas 71 - ligne 1929")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Libelle du virement emis
         try:
@@ -2341,14 +2164,12 @@ def create_opposition(headless):
             print("pas 72 - ligne 1946")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Répondre à la question "Voulez-vous valider ?"
         try:
@@ -2359,14 +2180,12 @@ def create_opposition(headless):
             print("pas 73 - ligne 1961")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Visualisation du Numero de l'ordre de dépense
         try:
@@ -2378,14 +2197,12 @@ def create_opposition(headless):
             print("pas 73 - ligne 1977")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Pour afficher la suite
         try:
@@ -2396,14 +2213,12 @@ def create_opposition(headless):
             print("pas 74 - ligne 1992")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Numero de l'opération
         try:
@@ -2416,14 +2231,12 @@ def create_opposition(headless):
             print("pas 75 - ligne 2082")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Pour afficher la suite
         try:
@@ -2433,14 +2246,12 @@ def create_opposition(headless):
             print("pas 76 - ligne 2097")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Fin de la transaction 21-2 et retour à la page d'accueil
         time.sleep(delay)
@@ -2461,14 +2272,12 @@ def create_opposition(headless):
             print("pas 77 - ligne 2123")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Création affaire service au code R17 "7055"
         # Saisir le numéro du dossier
@@ -2479,31 +2288,27 @@ def create_opposition(headless):
             print("pas 78 - ligne 2139")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir M pour mise à jour
         try:
-            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'labelB33gmenu0')))
             time.sleep(delay)
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'labelB33gmenu0')))
             wd.find_element(By.ID, 'inputB33gmenuYa33Gch1ChoixCMAI').send_keys("M")
             print("pas 79 - ligne 2154")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir le numéro FRP de l'opposant
         try:
@@ -2512,20 +2317,18 @@ def create_opposition(headless):
             print("pas 80 - ligne 2168")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Taper sur la touche « Entrée » jusqu’à la case de saisie
         # Titre
         try:
-            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginfoYa33Gtit2Titre')))
             time.sleep(delay)
+            WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginfoYa33Gtit2Titre')))
             wd.find_element(By.ID, 'inputB33ginfoYa33Gtit2Titre').send_keys(Keys.ENTER)
             # Profession/activité
             time.sleep(delay)
@@ -2563,14 +2366,12 @@ def create_opposition(headless):
             print("pas 81 - ligne 2208")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir S pour la validation
         try:
@@ -2580,14 +2381,12 @@ def create_opposition(headless):
             print("pas 82 - ligne 2222")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Taper sur la touche « Entrée » jusqu’à la case de saisie
         # Transport de creance O/N
@@ -2652,33 +2451,29 @@ def create_opposition(headless):
             print("pas 83- ligne 2274")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Message informatif
         # Pas de date d'exécution du jugement saisie, souhaitez-vous continuer ?
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 30).until(
                 EC.presence_of_element_located((By.ID, 'outputBrep9081Txt9081TexteDemandeConfirmation')))
-            time.sleep(delay)
             wd.find_element(By.ID, 'inputBrep9081Rep9082ReponseUtilisateurON').send_keys('O')
             print("pas 84 - ligne 2291")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Date de renouvellement
         try:
@@ -2694,54 +2489,49 @@ def create_opposition(headless):
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputB33ginf2Ya33GdtreDateRenouvellementAnnee')))
             wd.find_element(By.ID, 'inputB33ginf2Ya33GdtreDateRenouvellementAnnee').send_keys(Keys.ENTER)
-            print("pas 85 - ligne 2312")
+            print("pas 85 - ligne 2505")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir S pour passer à l'écran suivant
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 30).until(
                 EC.presence_of_element_located((By.ID, 'inputB33gsuprYa33G007ReponseSuitePrec')))
-            time.sleep(delay)
             wd.find_element(By.ID, 'inputB33gsuprYa33G007ReponseSuitePrec').send_keys('S')
-            print("pas 85 - ligne 2328")
+            print("pas 85 - ligne 2521")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir REF main levée
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GrfmlRefMainlevee')))
             time.sleep(delay)
             wd.find_element(By.ID, 'inputB33ginf3Ya33GrfmlRefMainlevee').send_keys(f"{numero_ope} du {djc_capture}")
             time.sleep(delay)
             wd.find_element(By.ID, 'inputB33ginf3Ya33GrfmlRefMainlevee').send_keys(Keys.ENTER)
-            print("pas 86 - ligne 2345")
+            print("pas 86 - ligne 2538")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir date de main levée
         # Capture et réutilisation de la date journée comptable
@@ -2759,17 +2549,15 @@ def create_opposition(headless):
                 EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GdtmlDateMainleveeAnnee')))
             wd.find_element(By.ID, 'inputB33ginf3Ya33GdtmlDateMainleveeAnnee').send_keys(djc[2])
             wd.find_element(By.ID, 'inputB33ginf3Ya33GdtmlDateMainleveeAnnee').send_keys(Keys.ENTER)
-            print("pas 87 - ligne 2367")
+            print("pas 87 - ligne 2565")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir type de main levée
         try:
@@ -2778,34 +2566,30 @@ def create_opposition(headless):
             wd.find_element(By.ID, 'inputB33ginf3Ya33GtpmlTypeMainlevee').send_keys('TOTALE')
             time.sleep(delay)
             wd.find_element(By.ID, 'inputB33ginf3Ya33GtpmlTypeMainlevee').send_keys(Keys.ENTER)
-            print("pas 87 - ligne 2384")
+            print("pas 87 - ligne 2582")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # REF JUGT NULLITE
         try:
             time.sleep(delay)
             WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GrfnlRefJugtNullite')))
             wd.find_element(By.ID, 'inputB33ginf3Ya33GrfnlRefJugtNullite').send_keys(Keys.ENTER)
-            print("pas 88 - ligne 2399")
+            print("pas 88 - ligne 2597")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # DATE JUGT NULLITE
         # Jour
@@ -2822,17 +2606,15 @@ def create_opposition(headless):
             WebDriverWait(wd, 20).until(
                 EC.presence_of_element_located((By.ID, 'inputB33ginf3Ya33GdtnlDateJugtNulliteAnnee')))
             wd.find_element(By.ID, 'inputB33ginf3Ya33GdtnlDateJugtNulliteAnnee').send_keys(Keys.ENTER)
-            print("pas 89 - ligne 2421")
+            print("pas 89 - ligne 2622")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Saisir O pour valider (Voulez-vous valider ?)
         try:
@@ -2843,17 +2625,15 @@ def create_opposition(headless):
             # WebDriverWait(wd, 20).until(EC.presence_of_element_located((By.ID, 'inputB33gvlcrYa33GvalcValidationCreation')))
             time.sleep(delay)
             wd.find_element(By.ID, 'inputB33gvlcrYa33GvalcValidationCreation').send_keys(Keys.ENTER)
-            print("pas 90 - ligne 2436")
+            print("pas 90 - ligne 2641")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Création d'une liste temporaire avec numéro d'ordre de dépenses, le numéro de l'affaire créée et le numéro de l'opération
         # Le numéro de l'opération est divisé sur deux cellules dans MEDOC
@@ -2862,20 +2642,19 @@ def create_opposition(headless):
 
         # Numero de l'opération
         try:
+            time.sleep(delay)
             WebDriverWait(wd, 30).until(EC.presence_of_element_located((By.ID, 'labelB33gnope0')))
             # Numero de l'ordre de depense indice #3 dans liste_temporaire_data
             liste_temporaire_data.append(wd.find_element(By.ID, 'outputB33gnopeYa33GnopeNOpe').text)
-            print("pas 91 - ligne 2460")
+            print("pas 91 - ligne 2662")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # fin de transaction :
         try:
@@ -2883,17 +2662,15 @@ def create_opposition(headless):
             fin_transaction_script = \
                 f'''document.getElementById('inputB33gcrmdYa33G012Reponse').setAttribute('value','N');'''
             wd.execute_script(fin_transaction_script)
-            print("pas 92 - ligne 2484")
+            print("pas 92 - ligne 2678")
         except TimeoutException:
             messagebox.showinfo("Service Interrompu !", message_service_interrompu)
+            print("data", data[j])
             sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
             WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
             wd.find_element(By.ID, 'barre_outils:touche_f2').click()
             wd.close()
-        except:
-            progressbar_label.destroy()
-            sav.saved_file(filename=saved_file, j=j, data=data, rep=sortie_repertoire,columns=columns_sortie)
-            err.error_message(wd=webdriver.Firefox(options=wd_options))
+
 
         # Retour au menu
         WebDriverWait(wd, 100).until(EC.presence_of_element_located((By.ID, 'barre_outils:touche_f2')))
@@ -2908,7 +2685,7 @@ def create_opposition(headless):
                 data[j][14] = numero_ope
                 data[j][15] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 data[j][16] = success
-                print("inscription des données dans la liste ligne 929", data)
+                print("inscription des données dans la liste ligne 2991", data)
             case False:
                 data[j][13] = f"{numero_ope} du {djc_capture}"
                 data[j][3] = str(date_d_effet.strftime('%Y-%m-%d'))
@@ -2932,14 +2709,14 @@ def create_opposition(headless):
         data_ods = data
 
         data_ods.insert(0, columns_sortie)
-        print("les nouvelles data 2605: \n", data)
+        print("les nouvelles data 2725: \n", data)
 
         if not os.path.exists(sortie_repertoire):
             os.makedirs(sortie_repertoire)
         if os.path.exists(sortie_repertoire + '/' + fichier_de_Sortie):
-            print("old_data 2813 : \n", old_data)
+            print("old_data 2730 : \n", old_data)
             del data_ods[0]
-            print("data sans les entêtes (ligne 2815)", data_ods)
+            print("data sans les entêtes (ligne 2732)", data_ods)
             if not old_data:
                 data_ods.insert(0, columns_sortie)
             else:
@@ -2950,25 +2727,26 @@ def create_opposition(headless):
             print("listData : \n", data_ods)
             os.remove(sortie_repertoire + '/' + fichier_de_Sortie)
         else:
-            print("old_data 2631: \n", old_data)
+            print("old_data 2953: \n", old_data)
             del data_ods[0]
-            print("data sans les entêtes (ligne 993)", data_ods)
+            print("data sans les entêtes (ligne 2745)", data_ods)
             if not old_data:
                 data_ods = data_ods
             else:
                 numpyData = np.append(data_ods, old_data, axis=0)
-                data_ods = list(numpyData)
+                data_ods = numpyData.tolist()
             data_ods.insert(0, columns_sortie)
             print("data_ods : \n", data_ods)
-            print("pas 92 - ligne 2616 - Fin de boucle")
+            print("type data_ods : \n", type(data_ods))
+            print("pas 93 - ligne 2754 - Fin de boucle")
         save_data(saved_file, data_ods)
         mouse.position = (10, 20)
         if j + 1 < nb_ligne:
             j += 1
         else:
             break
-        # del data[0]
-        print("ligne 2979: ", data)
+        del data[0]
+        print("ligne 2973: ", data)
     data_df = pd.DataFrame(data_ods)
 
     print("le dataframe : ", data_df)
