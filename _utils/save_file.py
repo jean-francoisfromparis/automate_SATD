@@ -1,33 +1,36 @@
 import os
 from datetime import datetime
-
 import numpy as np
 import pandas as pd
 from pyexcel_ods import save_data
-
 class Saved_file:
-    def saved_file(self, filename, j, data, rep, columns):
-        sheet_name="Feuille1"
+    def saved_file(self, filename, j, data, rep, columns, result):
+        data_to_saved = data
         if not os.path.exists(rep):
             os.makedirs(rep)
-            print("data", data[j])
-        data[j][15] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        data[j][16] = 'M'
+            print("data[j]", data[j])
+            data[j][14] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            data[j][15] = result
+
         if os.path.exists(filename):
             f = open(filename, 'a')
             f.close()
             old_data_df = pd.read_excel(filename)
             old_data = old_data_df.values.tolist()
             if old_data:
-                numero_affaire = data[j][5]
-                old_data = list(filter(lambda x: x[5] != numero_affaire, old_data))
-                print("old data",old_data)
-                print("data", data[j])
-                numpyData = np.row_stack((old_data,data[j]))
+                numero_affaire = data_to_saved[j][9]
+                old_data = list(filter(lambda x: x[9] != numero_affaire, old_data))
+                print("old data", len(old_data))
+                print("data[j]", data_to_saved[j])
+                numpyData = np.row_stack((old_data, data_to_saved[j]))
                 # data = list(numpyData)
-                data = numpyData.tolist()
-                data.insert(0, columns)
+                data_to_saved = numpyData.tolist()
             os.remove(filename)
         else:
-            data.insert(0, columns)
-        save_data(filename, data=data)
+            pass
+
+        if data_to_saved[0] == columns:
+            pass
+        else:
+            data_to_saved.insert(0, columns)
+        save_data(filename, data=data_to_saved)
