@@ -1,14 +1,18 @@
+import calendar
 import gc
 import os
 import shutil
 from sys import exit
 import time
-from datetime import datetime
+import glob
+import PyPDF2
+from datetime import datetime, date, timedelta
 from pathlib import Path
 from tkinter import *
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox, ttk, font
 from tkinter.ttk import Progressbar
 
+import dateparser
 import pandas as pd
 from PIL import Image, ImageTk
 from pandastable import Table
@@ -22,8 +26,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-
+from zipfile import ZipFile
 from _utils.save_file import Saved_file
+from _utils.telecharger import Telecharger_fichier
 
 mouse = Controller()
 success = '✓'
@@ -395,7 +400,7 @@ def create_opposition(headless):
                     time.sleep(delay)
                     if error_messages_is_present:
                         messages = f"{error_messages} \n Le dossier N°{data[j][0]} est ouvert par un autre agent ou " \
-                                   f"verrouillé.\n Vous pouvez relancer le processus. Cette ligne sera exclu et pourra"\
+                                   f"verrouillé.\n Vous pouvez relancer le processus. Cette ligne sera exclu et pourra" \
                                    f" être relancer dans 45 minutes"
                         messagebox.showinfo("Dossier verrouillé !", messages)
                         data[j].append('')
@@ -870,7 +875,260 @@ def create_opposition(headless):
     wd.quit()
 
 
-# Procédure pour
+# Procédure de récupération du numéro d'affaire du RCTVA à imputer
+def get_num_affaire(headless=None):
+    # Saisie du nom utilisateur et mot de passe
+    # login = EnterTable4.get()
+    # mot_de_passe = EnterTable5.get()
+    login = "meddb-jean-francois.consultant"
+    mot_de_passe = "Dagobert01"
+
+    telecharger_CTVA = Telecharger_fichier()
+
+    # Saisie de numéro de dossier :
+    # numeroDossier = EnterTable6.get()
+
+    # Saisie de la référence de jugement :
+    # reference_de_jugement = EnterTable10.get()
+    # Vérification de l'existance du repertoire de téléchargement
+
+    # telecharge_rep = os.path.expanduser('~')+"\\Downloads"
+    # if os.path.exists(telecharge_rep):
+    #     print("MDA" + datetime.now().strftime('_%d_%m_%Y'))
+    #     schema = "MDA"+datetime.now().strftime('_%d_%m_%Y')
+    #     list_fichier_zip = [fichier_zip for fichier_zip in glob.glob(telecharge_rep+"\\*.zip")]
+    # # récupération du fichier zip du jour
+    #     list_TVA_zip = [s for s in list_fichier_zip if schema in s]
+    #     print(list_TVA_zip)
+    #     print(len(list_TVA_zip))
+    # # création d'un repertoire d'archive pour les fichiers de crédit de tva
+    #     rep_fichier_tva = os.getcwd()+"\\credit_tva_"+datetime.now().strftime('%d_%m_%Y')
+    #     if not os.path.exists(rep_fichier_tva):
+    #         os.makedirs(rep_fichier_tva)
+    #         print("Repertoire créer")
+    # # Ouverture du dernier fichier zip du jour et sauvegarde dans le repertoire
+    #         if len(list_TVA_zip) != 0:
+    #             with ZipFile(list_TVA_zip[len(list_TVA_zip)-1], 'r') as zip:
+    #                 # afficher tout le contenu du fichier zip
+    #                 zip.printdir()
+    #
+    #                 # extraire tous les fichiers
+    #                 print('Extraction...')
+    #                 zip.extractall(rep_fichier_tva)
+    #                 print('Extraction terminé!')
+    #
+    # # création de l'objet fichier pdf
+    # # récupération de la liste des pdfs
+    # list_fichier_credit_tva = [fichier_credit_tva for fichier_credit_tva in glob.glob(rep_fichier_tva + "\\*.pdf")]
+    # pdfCreditTvaObj = []
+    # reader = []
+    # for i in range(len(list_fichier_credit_tva)):
+    #     pdfCreditTvaObj.append(open(list_fichier_credit_tva[i],'rb'))
+    #     reader.append(PyPDF2.PdfReader(pdfCreditTvaObj[i]))
+    #     print("nombres de pages",len(reader[i].pages))
+    #
+    # pdfFileObj = open('example.pdf', 'rb')
+    #
+    # # creating a pdf reader object
+    # pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
+    #
+    # # printing number of pages in pdf file
+    # print(pdfReader.numPages)
+    #
+    # # creating a page object
+    # pageObj = pdfReader.getPage(0)
+    #
+    # # extracting text from page
+    # print(pageObj.extractText())
+    print(datetime.now().month)
+
+    start = date(2023,datetime.now().month,1)
+    end = date(datetime.now().year, datetime.now().month, calendar.monthrange(datetime.now().year, datetime.now().month)[1])
+    periode = calendar.monthrange(datetime.now().year, datetime.now().month)[1]
+    print(start)
+    daterange = []
+    for day in range(periode):
+        jour = (start + timedelta(days=day))
+        if jour.weekday() in [0,1,2,3,4]:
+            daterange.append(jour)
+    print(daterange)
+    maintenant = datetime.now().date()
+    indice = daterange.index(maintenant)
+    liste_jour_a_telecharger = []
+    for i in range(indice):
+        jour_a_telecharger = daterange[indice-1-i]
+        print(type(jour_a_telecharger))
+        liste_jour_a_telecharger.append(jour_a_telecharger)
+    print(type(liste_jour_a_telecharger[0].day))
+
+
+    # print(datetime.now().strftime('%Y-%m-%d'))
+
+    # exit()
+
+    wd_options = Options()
+    # wd_options.headless = headless
+    if headless:
+        wd_options.add_argument('-headless')
+
+    wd_options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
+    wd_options.set_preference('detach', True)
+    wd_options.add_argument("--enable-javascript")
+    wd = webdriver.Firefox(options=wd_options)
+    # wd = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=wd_options)
+    # TODO Passer au service object
+    wd.get(
+        'https://portailmetierpriv.appli.impots/cas/login?service=http://pdf-integ.appli.dgfip/login.php')  # adresse PDF EDIT
+    # Elimination des onglet about-blank
+    all_tab = wd.window_handles
+    wd.switch_to.window(all_tab[0])
+    time.sleep(delay)
+    i = 0
+    for i in range(len(all_tab)):
+        wd.switch_to.window(all_tab[i])
+        time.sleep(delay)
+        time.sleep(delay)
+        if not wd.title:
+            wd.close()
+        elif wd.title == "Protection de la navigation par F-Secure":
+            print(wd.title)
+        time.sleep(delay)
+    new_tabs = wd.window_handles
+    wd.switch_to.window(new_tabs[0])
+    # Saisir utilisateur
+    while wd.title == "Identification":
+        print(wd.title)
+        time.sleep(delay)
+        wd.find_element(By.ID, 'identifiant').send_keys(login)
+        wd.find_element(By.ID, 'identifiant').send_keys(Keys.TAB)
+        # Saisie mot de pass
+        time.sleep(delay)
+        # wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
+        wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
+
+        time.sleep(delay)
+        wd.find_element(By.ID, 'secret_tmp').send_keys(Keys.RETURN)
+        time.sleep(delay)
+    print(wd.title)
+
+    # cliquer sur MDA
+    try:
+        if wd.title == "PDFEDIT - Consultation prog":
+            WebDriverWait(wd, 20).until(EC.frame_to_be_available_and_switch_to_it((By.NAME, 'choix')))
+            mda_button = wd.find_element(By.ID, 'MDA')
+            mda_button.click()
+            print("pas 1-ligne 918")
+    except:
+        pass
+
+    try:
+        dge_button = wd.find_element(By.CSS_SELECTOR, 'body > div:nth-child(2) > p:nth-child(3) > a:nth-child(3214)')
+        dge_button.click()
+        wd.switch_to.default_content()
+        frames = wd.find_elements(By.TAG_NAME, "frame")
+        print("La liste de frame contient " + str(len(frames)))
+        wd.switch_to.frame(frames[1])
+        print("pas 2-ligne 944")
+    except:
+        pass
+    # insertion methode
+    telecharger_CTVA.telecharger(wd, liste_jour_a_telecharger)
+    # try:
+    #     today_button = wd.find_element(By.CSS_SELECTOR, 'html body form#f_form div#monmenu ul.niveau1 li'
+    #                                                     '#calendrier.titre div.calendar table tbody tr.daysrow td'
+    #                                                     '.day.selected.today')
+    #     today_button.click()
+    #     print("pas 3 - ligne 953")
+    # except:
+    #     pass
+
+    # selection des données des 4 jours ouvrables précédents
+    # sélection du jour courant
+
+    # try:
+    #     today_button = wd.find_element(By.CSS_SELECTOR, 'html body form#f_form div#monmenu ul.niveau1 li'
+    #                                                     '#calendrier.titre div.calendar table tbody tr.daysrow td'
+    #                                                     '.day.selected.today')
+    #     filtre = wd.find_element(By.ID, 'filtre_id')
+    #     filtre.send_keys("Credit_TVA")
+    #     time.sleep(10)
+    #     today_button.click()
+    #     print("pas 4 - ligne 958")
+    # except:  # any exception
+    #     pass
+
+    # try:
+    #     filtre_button = wd.find_element(By.XPATH, '/html/body/form[1]/div[1]/ul/li[5]/input[2]')
+    #     filtre_button.click()
+    #     print("pas 5 - ligne 971")
+    # except:
+    #     pass
+    #
+    # try:
+    #     dossiers = wd.find_elements(By.XPATH, '//*[starts-with(@id,"ico")]')
+    #     if len(dossiers) == 0:
+    #         messagebox.showinfo('Pas de dossier Crédit de TVA', 'Il n\'y a pas de dossier '
+    #                                                             'Crédit TVA aujourd\'hui à afficher')
+    #     for dossier in dossiers:
+    #         dossier.click()
+    #     print(len(dossiers))
+    #     print("pas 6 - ligne 982")
+    # except:  # any exception
+    #     pass
+    #
+    # try:
+    #     tout_cocher = wd.find_element(By.CSS_SELECTOR, 'li.titre:nth-child(6)')
+    #     tout_cocher.click()
+    #     print("pas 7 - ligne 994")
+    # except:  # any exception
+    #     pass
+    #
+    # try:
+    #     telecharger = wd.find_element(By.CSS_SELECTOR, 'li.titre:nth-child(7)')
+    #     telecharger.click()
+    #     time.sleep(10)
+    #     print("pas 8 - ligne 1001")
+    # except:  # any exception
+    #     pass
+    #
+    # wd.switch_to.alert.accept()
+    # time.sleep(10)
+
+    # Récupération des lignes du tableau du calendrier
+    # element_calendrier = wd.find_elements(By.CLASS_NAME,"day")
+    # calendrier = []
+    # for jour_calendrier in element_calendrier:
+    #     calendrier.append(jour_calendrier.text)
+    #
+    # print(calendrier)
+    # indices_jour = []
+    # boutons_jour = []
+    # for n in range(len(liste_jour_a_telecharger)):
+    #     # print()
+    #     indices_jour.append( calendrier.index(str(liste_jour_a_telecharger[n].day)))
+    #     # print(indice_jour)
+    #     boutons_jour.append(element_calendrier[indices_jour[n]])
+    #     # print(boutons_jour[n].text)
+    #
+    #     telecharger_CTVA.telecharger(wd,boutons_jour[n])
+
+    # Vérification de l'existance du repertoire de téléchargement et vérifier qu'un fichier zip du jour existe
+    telecharge_rep = os.path.expanduser('~') + "\\Downloads"
+    if os.path.exists(telecharge_rep):
+        print(datetime.now().strftime('%Y-%m-%d'))
+
+    # Analyse des document charger
+    try:
+        fermer = wd.find_element(By.CSS_SELECTOR, 'a[href="../delogue.php"]')
+        fermer.click()
+        print("pas 9 - ligne 1095")
+    except:  # any exception
+        pass
+
+    print("fin du programme")
+
+
+# Procédure pour la vérification du fichier
 def open_file():
     global File_path
     # global l1
@@ -967,9 +1225,9 @@ paramy = 170
 
 tabControl = ttk.Notebook(Interface)
 tab1 = Frame(tabControl, bg='#C7DDC5')
-label1 = Label(tab1, text='Afficher la liste des oppositions', font=('Arial', 15), fg='Black', bg='#ffffff',
+label1 = Label(tab1, text='Récupération des numéro d\'affaire', font=('Arial', 15), fg='Black', bg='#ffffff',
                relief="sunken")
-label1.place(x=400, y=paramx)
+label1.place(x=350, y=paramx)
 
 tab2 = Frame(tabControl, bg='#E3EBD0')
 label2 = Label(tab2, text='Créer des oppositions', font=('Arial', 15), fg='Black', bg='#ffffff', relief="sunken")
@@ -978,19 +1236,20 @@ label2.place(x=400, y=paramx)
 # tabControl.add(tab2, text='Création des oppositions')
 tabControl.pack(expand=1, fill="both")
 tab6 = Frame(tabControl, bg='#E3EBD0')
-tabControl.add(tab6, text='Automate SATD DGE')
+tabControl.add(tab6, text='Création d\'opposition')
+tabControl.add(tab1, text='Récupération des numéro d\'affaire')
 tabControl.pack(expand=1, fill="both")
 tab3 = Frame(tabControl, bg='#E3EBD0')
 tab4 = Frame(tabControl, bg='#E3EBD0')
 
 # Etablissement de l'image de fermeture
-img = Image.open('close-button.png')
-img_resize = img.resize((30, 30), Image.LANCZOS)
-closeIcon = ImageTk.PhotoImage(img_resize)
-closeButton1 = Button(Interface, image=closeIcon, command=lambda: tabControl.forget(tab3))
-closeButton1.pack(side=LEFT)
-closeButton2 = Button(Interface, image=closeIcon, command=lambda: tabControl.forget(tab4))
-closeButton2.pack(side=LEFT)
+# img = Image.open('close-button.png')
+# img_resize = img.resize((30, 30), Image.LANCZOS)
+# closeIcon = ImageTk.PhotoImage(img_resize)
+# closeButton1 = Button(Interface, image=closeIcon, command=lambda: tabControl.forget(tab3))
+# closeButton1.pack(side=LEFT)
+# closeButton2 = Button(Interface, image=closeIcon, command=lambda: tabControl.forget(tab4))
+# closeButton2.pack(side=LEFT)
 
 EnterTable1 = StringVar()
 EnterTable2 = StringVar()
@@ -1003,10 +1262,6 @@ EnterTable8 = StringVar()
 EnterTable9 = StringVar()
 EnterTable10 = StringVar()
 
-labelNumeroDossier = Label(tab1, text='Numéro Dossier Opposant:', relief="sunken")
-labelNumeroDossier.place(x=250, y=paramy - 30)
-entryNumeroDossier = Entry(tab1, textvariable=EnterTable6, justify='center')
-entryNumeroDossier.place(width=225, x=paramx + 490, y=paramy - 30)
 lexique = "Lexique : \n    ● Le symbole 'X' indique que la ligne a été traitée avec succès.\n    ● Le " \
           "symbole '∅' indique que des données obligatoires sont manquantes sur la ligne en question. \n    ● Le " \
           "symbole '\U0001F512' indique que le dossier de la ligne en question et verrouillé, la ligne pourra " \
@@ -1015,32 +1270,23 @@ lexique = "Lexique : \n    ● Le symbole 'X' indique que la ligne a été trait
 labelLexique = Label(tab6, text=lexique, relief="sunken", wraplength=500, justify=LEFT)
 labelLexique.place(x=250, y=paramy + 235)
 
-creerOpposition = Button(tab2, text='Créer les Oppositions avec navigateur',
-                         command=lambda: create_opposition(headless=False))
-creerOpposition.place(x=paramx + 240, y=paramy + 300)
-
-label3 = Label(tab2, text='Saisir la ligne du début: ', relief="sunken")
-label3.place(x=paramx + 240, y=paramy + 45)
-entry2 = Entry(tab2, textvariable=EnterTable2, justify='center')
-entry2.place(width=225, x=paramx + 490, y=paramy + 45)
-label4 = Label(tab2, text='Saisir le nombre de lignes à traiter: ', relief="sunken")
-label4.place(x=paramx + 240, y=paramy + 105)
-entry3 = Entry(tab2, textvariable=EnterTable3, justify='center')
-entry3.place(width=225, x=paramx + 490, y=paramy + 105)
-
-browser_button = Button(tab2, text='Créer les Oppositions sans navigateur !',
-                        command=lambda: create_opposition(headless=True))
-browser_button.place(x=paramx + 240, y=paramy + 250)
-
 # login et mot de passe sur tab1 à tab3
 label5 = Label(tab1, text='Identifiant:', relief="sunken")
 label5.place(x=250, y=70)
-entry4 = Entry(tab1, textvariable=EnterTable4, justify='center')
+entry4 = Entry(tab1, textvariable=EnterTable4, justify='center', width=30)
 entry4.place(x=340, y=70)
 label6 = Label(tab1, text='Mot de passe: ', relief="sunken")
-label6.place(x=500, y=70)
-entry5 = Entry(tab1, textvariable=EnterTable5, justify='center')
-entry5.place(x=600, y=70)
+label6.place(x=550, y=70)
+mot_de_passe = Entry(tab1, textvariable=EnterTable5, show="*", justify='center')
+mot_de_passe.place(x=650, y=70)
+
+browser_button = Button(tab1, bg="#82CFD8", text='Récuperer les numéro d\'affaires RCTVA sans visualisation',
+                        command=lambda: get_num_affaire(headless=True))
+browser_button.place(x=paramx + 240, y=paramy + 250)
+
+recup_num_affaire = Button(tab1, bg="#007FA9", text='Récuperer les numéro d\'affaires RCTVA avec visualisation',
+                           command=lambda: get_num_affaire(headless=False))
+recup_num_affaire.place(x=paramx + 240, y=paramy + 150)
 
 label5 = Label(tab2, text='Identifiant:', relief="sunken")
 label5.place(x=250, y=70)
@@ -1048,8 +1294,22 @@ entry4 = Entry(tab2, textvariable=EnterTable4, justify='center')
 entry4.place(x=340, y=70)
 label6 = Label(tab2, text='Mot de passe: ', relief="sunken")
 label6.place(x=500, y=70)
-entry5 = Entry(tab2, textvariable=EnterTable5, justify='center')
-entry5.place(x=600, y=70)
+mot_de_passe = Entry(tab2, textvariable=EnterTable5, show="*", justify='center')
+mot_de_passe.place(x=600, y=70)
+
+
+def toggle_password():
+    if mot_de_passe.cget('show') == '':
+        time.sleep(10)
+        mot_de_passe.config(show='*')
+    else:
+        mot_de_passe.config(show='')
+        button_font.config(overstrike=1)
+
+
+button_font = font.Font(family='Tahoma', size=12)
+show_password_btn = Button(tab1, text='👁', font=button_font, justify=CENTER, command=toggle_password)
+show_password_btn.place(x=600 + 70 + 135, y=65)
 
 button2 = Button(tab2, text='Choisir le fichier d\'entrée', command=open_file)
 button2.place(x=paramx + 240, y=paramy - 30)
@@ -1062,19 +1322,14 @@ entry4 = Entry(tab6, textvariable=EnterTable4, justify='center')
 entry4.place(x=340, y=70)
 label6 = Label(tab6, text='Mot de passe: ', relief="sunken")
 label6.place(x=500, y=70)
-entry5 = Entry(tab6, textvariable=EnterTable5, justify='center')
-entry5.place(x=600, y=70)
+mot_de_passe = Entry(tab6, textvariable=EnterTable5, justify='center')
+mot_de_passe.place(x=600, y=70)
 
 button2 = Button(tab6, bg="#CEDDDE", text='Choisir le fichier d\'entrée', command=open_file)
 button2.place(x=paramx + 240, y=paramy - 30)
 label_path6 = Label(tab6)
 label_path6.place(x=paramx + 490, y=paramy - 30)
 
-# purge_button = Button(tab6, bg="#CEDDDE", text='Purger', command=purge)
-# purge_button.place(x=paramx + 240, y=paramy + 50)
-# purge_label = Label(tab6, text="A utiliser en cas d'arrêt inattendu de l'automate en cours d'utilisation !",
-#                     relief="sunken")
-# purge_label.place(x=paramx + 340, y=paramy + 50)
 browser_button = Button(tab6, bg="#82CFD8", text='Créer les Oppositions sans visualisation des transactions',
                         command=lambda: create_opposition(headless=True))
 browser_button.place(x=paramx + 240, y=paramy + 100)
