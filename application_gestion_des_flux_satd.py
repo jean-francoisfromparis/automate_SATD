@@ -954,7 +954,7 @@ def get_num_affaire(headless=None):
     print(daterange)
     maintenant = datetime.now().date()
     indice = daterange.index(maintenant)
-    liste_jour_a_telecharger = []
+    liste_jour_a_telecharger = [maintenant]
     for i in range(indice):
         jour_a_telecharger = daterange[indice-1-i]
         print(type(jour_a_telecharger))
@@ -966,73 +966,73 @@ def get_num_affaire(headless=None):
 
     # exit()
 
-    wd_options = Options()
-    # wd_options.headless = headless
-    if headless:
-        wd_options.add_argument('-headless')
-
-    wd_options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
-    wd_options.set_preference('detach', True)
-    wd_options.add_argument("--enable-javascript")
-    wd = webdriver.Firefox(options=wd_options)
-    # wd = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=wd_options)
-    # TODO Passer au service object
-    wd.get(
-        'https://portailmetierpriv.appli.impots/cas/login?service=http://pdf-integ.appli.dgfip/login.php')  # adresse PDF EDIT
-    # Elimination des onglet about-blank
-    all_tab = wd.window_handles
-    wd.switch_to.window(all_tab[0])
-    time.sleep(delay)
-    i = 0
-    for i in range(len(all_tab)):
-        wd.switch_to.window(all_tab[i])
-        time.sleep(delay)
-        time.sleep(delay)
-        if not wd.title:
-            wd.close()
-        elif wd.title == "Protection de la navigation par F-Secure":
-            print(wd.title)
-        time.sleep(delay)
-    new_tabs = wd.window_handles
-    wd.switch_to.window(new_tabs[0])
-    # Saisir utilisateur
-    while wd.title == "Identification":
-        print(wd.title)
-        time.sleep(delay)
-        wd.find_element(By.ID, 'identifiant').send_keys(login)
-        wd.find_element(By.ID, 'identifiant').send_keys(Keys.TAB)
-        # Saisie mot de pass
-        time.sleep(delay)
-        # wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
-        wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
-
-        time.sleep(delay)
-        wd.find_element(By.ID, 'secret_tmp').send_keys(Keys.RETURN)
-        time.sleep(delay)
-    print(wd.title)
-
-    # cliquer sur MDA
-    try:
-        if wd.title == "PDFEDIT - Consultation prog":
-            WebDriverWait(wd, 20).until(EC.frame_to_be_available_and_switch_to_it((By.NAME, 'choix')))
-            mda_button = wd.find_element(By.ID, 'MDA')
-            mda_button.click()
-            print("pas 1-ligne 918")
-    except:
-        pass
-
-    try:
-        dge_button = wd.find_element(By.CSS_SELECTOR, 'body > div:nth-child(2) > p:nth-child(3) > a:nth-child(3214)')
-        dge_button.click()
-        wd.switch_to.default_content()
-        frames = wd.find_elements(By.TAG_NAME, "frame")
-        print("La liste de frame contient " + str(len(frames)))
-        wd.switch_to.frame(frames[1])
-        print("pas 2-ligne 944")
-    except:
-        pass
+    # wd_options = Options()
+    # # wd_options.headless = headless
+    # if headless:
+    #     wd_options.add_argument('-headless')
+    #
+    # wd_options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
+    # wd_options.set_preference('detach', True)
+    # wd_options.add_argument("--enable-javascript")
+    # wd = webdriver.Firefox(options=wd_options)
+    # # wd = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=wd_options)
+    # # TODO Passer au service object
+    # wd.get(
+    #     'https://portailmetierpriv.appli.impots/cas/login?service=http://pdf-integ.appli.dgfip/login.php')  # adresse PDF EDIT
+    # # Elimination des onglet about-blank
+    # all_tab = wd.window_handles
+    # wd.switch_to.window(all_tab[0])
+    # time.sleep(delay)
+    # i = 0
+    # for i in range(len(all_tab)):
+    #     wd.switch_to.window(all_tab[i])
+    #     time.sleep(delay)
+    #     time.sleep(delay)
+    #     if not wd.title:
+    #         wd.close()
+    #     elif wd.title == "Protection de la navigation par F-Secure":
+    #         print(wd.title)
+    #     time.sleep(delay)
+    # new_tabs = wd.window_handles
+    # wd.switch_to.window(new_tabs[0])
+    # # Saisir utilisateur
+    # while wd.title == "Identification":
+    #     print(wd.title)
+    #     time.sleep(delay)
+    #     wd.find_element(By.ID, 'identifiant').send_keys(login)
+    #     wd.find_element(By.ID, 'identifiant').send_keys(Keys.TAB)
+    #     # Saisie mot de pass
+    #     time.sleep(delay)
+    #     # wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
+    #     wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
+    #
+    #     time.sleep(delay)
+    #     wd.find_element(By.ID, 'secret_tmp').send_keys(Keys.RETURN)
+    #     time.sleep(delay)
+    # print(wd.title)
+    #
+    # # cliquer sur MDA
+    # try:
+    #     if wd.title == "PDFEDIT - Consultation prog":
+    #         WebDriverWait(wd, 20).until(EC.frame_to_be_available_and_switch_to_it((By.NAME, 'choix')))
+    #         mda_button = wd.find_element(By.ID, 'MDA')
+    #         mda_button.click()
+    #         print("pas 1-ligne 918")
+    # except:
+    #     pass
+    #
+    # try:
+    #     dge_button = wd.find_element(By.CSS_SELECTOR, 'body > div:nth-child(2) > p:nth-child(3) > a:nth-child(3214)')
+    #     dge_button.click()
+    #     wd.switch_to.default_content()
+    #     frames = wd.find_elements(By.TAG_NAME, "frame")
+    #     print("La liste de frame contient " + str(len(frames)))
+    #     wd.switch_to.frame(frames[1])
+    #     print("pas 2-ligne 944")
+    # except:
+    #     pass
     # insertion methode
-    telecharger_CTVA.telecharger(wd, liste_jour_a_telecharger)
+    telecharger_CTVA.telecharger(headless,liste_jour_a_telecharger,delay)
     # try:
     #     today_button = wd.find_element(By.CSS_SELECTOR, 'html body form#f_form div#monmenu ul.niveau1 li'
     #                                                     '#calendrier.titre div.calendar table tbody tr.daysrow td'
@@ -1118,12 +1118,12 @@ def get_num_affaire(headless=None):
         print(datetime.now().strftime('%Y-%m-%d'))
 
     # Analyse des document charger
-    try:
-        fermer = wd.find_element(By.CSS_SELECTOR, 'a[href="../delogue.php"]')
-        fermer.click()
-        print("pas 9 - ligne 1095")
-    except:  # any exception
-        pass
+    # try:
+    #     fermer = wd.find_element(By.CSS_SELECTOR, 'a[href="../delogue.php"]')
+    #     fermer.click()
+    #     print("pas 9 - ligne 1095")
+    # except:  # any exception
+    #     pass
 
     print("fin du programme")
 
