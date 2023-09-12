@@ -91,7 +91,7 @@ class Telecharger_fichier:
             # boutons_jour = [wd.find_element(By.CSS_SELECTOR,'#calendrier > div > table > tbody > tr:nth-child(2) > td.day.selected.today')]
             print(str(liste_jour_a_telecharger[n].day))
             indices_jour = calendrier.index(str(liste_jour_a_telecharger[n].day))
-                # print(indice_jour)
+            print(indices_jour)
             boutons_jour = element_calendrier[indices_jour]
             print("le texte du bouton:",boutons_jour.text)
 

@@ -1,10 +1,14 @@
 import calendar
 import gc
+import locale
 import os
+import re
 import shutil
 from sys import exit
 import time
 import glob
+from typing import List
+
 import PyPDF2
 from datetime import datetime, date, timedelta
 from pathlib import Path
@@ -877,6 +881,8 @@ def create_opposition(headless):
 
 # Procédure de récupération du numéro d'affaire du RCTVA à imputer
 def get_num_affaire(headless=None):
+    # Mise en place du format local français
+    locale.setlocale(locale.LC_TIME, "fr-FR")
     # Saisie du nom utilisateur et mot de passe
     # login = EnterTable4.get()
     # mot_de_passe = EnterTable5.get()
@@ -890,58 +896,6 @@ def get_num_affaire(headless=None):
 
     # Saisie de la référence de jugement :
     # reference_de_jugement = EnterTable10.get()
-    # Vérification de l'existance du repertoire de téléchargement
-
-    # telecharge_rep = os.path.expanduser('~')+"\\Downloads"
-    # if os.path.exists(telecharge_rep):
-    #     print("MDA" + datetime.now().strftime('_%d_%m_%Y'))
-    #     schema = "MDA"+datetime.now().strftime('_%d_%m_%Y')
-    #     list_fichier_zip = [fichier_zip for fichier_zip in glob.glob(telecharge_rep+"\\*.zip")]
-    # # récupération du fichier zip du jour
-    #     list_TVA_zip = [s for s in list_fichier_zip if schema in s]
-    #     print(list_TVA_zip)
-    #     print(len(list_TVA_zip))
-    # # création d'un repertoire d'archive pour les fichiers de crédit de tva
-    #     rep_fichier_tva = os.getcwd()+"\\credit_tva_"+datetime.now().strftime('%d_%m_%Y')
-    #     if not os.path.exists(rep_fichier_tva):
-    #         os.makedirs(rep_fichier_tva)
-    #         print("Repertoire créer")
-    # # Ouverture du dernier fichier zip du jour et sauvegarde dans le repertoire
-    #         if len(list_TVA_zip) != 0:
-    #             with ZipFile(list_TVA_zip[len(list_TVA_zip)-1], 'r') as zip:
-    #                 # afficher tout le contenu du fichier zip
-    #                 zip.printdir()
-    #
-    #                 # extraire tous les fichiers
-    #                 print('Extraction...')
-    #                 zip.extractall(rep_fichier_tva)
-    #                 print('Extraction terminé!')
-    #
-    # # création de l'objet fichier pdf
-    # # récupération de la liste des pdfs
-    # list_fichier_credit_tva = [fichier_credit_tva for fichier_credit_tva in glob.glob(rep_fichier_tva + "\\*.pdf")]
-    # pdfCreditTvaObj = []
-    # reader = []
-    # for i in range(len(list_fichier_credit_tva)):
-    #     pdfCreditTvaObj.append(open(list_fichier_credit_tva[i],'rb'))
-    #     reader.append(PyPDF2.PdfReader(pdfCreditTvaObj[i]))
-    #     print("nombres de pages",len(reader[i].pages))
-    #
-    # pdfFileObj = open('example.pdf', 'rb')
-    #
-    # # creating a pdf reader object
-    # pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
-    #
-    # # printing number of pages in pdf file
-    # print(pdfReader.numPages)
-    #
-    # # creating a page object
-    # pageObj = pdfReader.getPage(0)
-    #
-    # # extracting text from page
-    # print(pageObj.extractText())
-    print(datetime.now().month)
-
     start = date(2023,datetime.now().month,1)
     end = date(datetime.now().year, datetime.now().month, calendar.monthrange(datetime.now().year, datetime.now().month)[1])
     periode = calendar.monthrange(datetime.now().year, datetime.now().month)[1]
@@ -951,179 +905,118 @@ def get_num_affaire(headless=None):
         jour = (start + timedelta(days=day))
         if jour.weekday() in [0,1,2,3,4]:
             daterange.append(jour)
-    print(daterange)
+    print("liste des jour ouvré du mois",daterange)
     maintenant = datetime.now().date()
+    # maintenant = date(2023,9,1)
     indice = daterange.index(maintenant)
-    liste_jour_a_telecharger = [maintenant]
-    for i in range(indice):
-        jour_a_telecharger = daterange[indice-1-i]
-        print(type(jour_a_telecharger))
+    liste_jour_a_telecharger = []
+    # nombre de jours entre le jour courant et le 1er jour ouvré du mois courant
+    print("la position du jour courant", indice)
+    if indice <= 5:
+        k = 0
+    else:
+        k = indice - 4
+    for n in range(k,indice):
+        print(n)
+        jour_a_telecharger = daterange[n]
         liste_jour_a_telecharger.append(jour_a_telecharger)
-    print(type(liste_jour_a_telecharger[0].day))
-
-
-    # print(datetime.now().strftime('%Y-%m-%d'))
+    liste_jour_a_telecharger.append(maintenant)
+    # print(liste_jour_a_telecharger)
 
     # exit()
 
-    # wd_options = Options()
-    # # wd_options.headless = headless
-    # if headless:
-    #     wd_options.add_argument('-headless')
-    #
-    # wd_options.binary_location = r'C:\Program Files\Mozilla Firefox\firefox.exe'
-    # wd_options.set_preference('detach', True)
-    # wd_options.add_argument("--enable-javascript")
-    # wd = webdriver.Firefox(options=wd_options)
-    # # wd = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=wd_options)
-    # # TODO Passer au service object
-    # wd.get(
-    #     'https://portailmetierpriv.appli.impots/cas/login?service=http://pdf-integ.appli.dgfip/login.php')  # adresse PDF EDIT
-    # # Elimination des onglet about-blank
-    # all_tab = wd.window_handles
-    # wd.switch_to.window(all_tab[0])
-    # time.sleep(delay)
-    # i = 0
-    # for i in range(len(all_tab)):
-    #     wd.switch_to.window(all_tab[i])
-    #     time.sleep(delay)
-    #     time.sleep(delay)
-    #     if not wd.title:
-    #         wd.close()
-    #     elif wd.title == "Protection de la navigation par F-Secure":
-    #         print(wd.title)
-    #     time.sleep(delay)
-    # new_tabs = wd.window_handles
-    # wd.switch_to.window(new_tabs[0])
-    # # Saisir utilisateur
-    # while wd.title == "Identification":
-    #     print(wd.title)
-    #     time.sleep(delay)
-    #     wd.find_element(By.ID, 'identifiant').send_keys(login)
-    #     wd.find_element(By.ID, 'identifiant').send_keys(Keys.TAB)
-    #     # Saisie mot de pass
-    #     time.sleep(delay)
-    #     # wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
-    #     wd.find_element(By.ID, 'secret_tmp').send_keys(mot_de_passe)
-    #
-    #     time.sleep(delay)
-    #     wd.find_element(By.ID, 'secret_tmp').send_keys(Keys.RETURN)
-    #     time.sleep(delay)
-    # print(wd.title)
-    #
-    # # cliquer sur MDA
-    # try:
-    #     if wd.title == "PDFEDIT - Consultation prog":
-    #         WebDriverWait(wd, 20).until(EC.frame_to_be_available_and_switch_to_it((By.NAME, 'choix')))
-    #         mda_button = wd.find_element(By.ID, 'MDA')
-    #         mda_button.click()
-    #         print("pas 1-ligne 918")
-    # except:
-    #     pass
-    #
-    # try:
-    #     dge_button = wd.find_element(By.CSS_SELECTOR, 'body > div:nth-child(2) > p:nth-child(3) > a:nth-child(3214)')
-    #     dge_button.click()
-    #     wd.switch_to.default_content()
-    #     frames = wd.find_elements(By.TAG_NAME, "frame")
-    #     print("La liste de frame contient " + str(len(frames)))
-    #     wd.switch_to.frame(frames[1])
-    #     print("pas 2-ligne 944")
-    # except:
-    #     pass
-    # insertion methode
-    telecharger_CTVA.telecharger(headless,liste_jour_a_telecharger,delay)
-    # try:
-    #     today_button = wd.find_element(By.CSS_SELECTOR, 'html body form#f_form div#monmenu ul.niveau1 li'
-    #                                                     '#calendrier.titre div.calendar table tbody tr.daysrow td'
-    #                                                     '.day.selected.today')
-    #     today_button.click()
-    #     print("pas 3 - ligne 953")
-    # except:
-    #     pass
+    # Téléchargement des données de 5 jours précédent du mois en cours
+    # telecharger_CTVA.telecharger(headless,liste_jour_a_telecharger,delay)
 
-    # selection des données des 4 jours ouvrables précédents
-    # sélection du jour courant
-
-    # try:
-    #     today_button = wd.find_element(By.CSS_SELECTOR, 'html body form#f_form div#monmenu ul.niveau1 li'
-    #                                                     '#calendrier.titre div.calendar table tbody tr.daysrow td'
-    #                                                     '.day.selected.today')
-    #     filtre = wd.find_element(By.ID, 'filtre_id')
-    #     filtre.send_keys("Credit_TVA")
-    #     time.sleep(10)
-    #     today_button.click()
-    #     print("pas 4 - ligne 958")
-    # except:  # any exception
-    #     pass
-
-    # try:
-    #     filtre_button = wd.find_element(By.XPATH, '/html/body/form[1]/div[1]/ul/li[5]/input[2]')
-    #     filtre_button.click()
-    #     print("pas 5 - ligne 971")
-    # except:
-    #     pass
-    #
-    # try:
-    #     dossiers = wd.find_elements(By.XPATH, '//*[starts-with(@id,"ico")]')
-    #     if len(dossiers) == 0:
-    #         messagebox.showinfo('Pas de dossier Crédit de TVA', 'Il n\'y a pas de dossier '
-    #                                                             'Crédit TVA aujourd\'hui à afficher')
-    #     for dossier in dossiers:
-    #         dossier.click()
-    #     print(len(dossiers))
-    #     print("pas 6 - ligne 982")
-    # except:  # any exception
-    #     pass
-    #
-    # try:
-    #     tout_cocher = wd.find_element(By.CSS_SELECTOR, 'li.titre:nth-child(6)')
-    #     tout_cocher.click()
-    #     print("pas 7 - ligne 994")
-    # except:  # any exception
-    #     pass
-    #
-    # try:
-    #     telecharger = wd.find_element(By.CSS_SELECTOR, 'li.titre:nth-child(7)')
-    #     telecharger.click()
-    #     time.sleep(10)
-    #     print("pas 8 - ligne 1001")
-    # except:  # any exception
-    #     pass
-    #
-    # wd.switch_to.alert.accept()
-    # time.sleep(10)
-
-    # Récupération des lignes du tableau du calendrier
-    # element_calendrier = wd.find_elements(By.CLASS_NAME,"day")
-    # calendrier = []
-    # for jour_calendrier in element_calendrier:
-    #     calendrier.append(jour_calendrier.text)
-    #
-    # print(calendrier)
-    # indices_jour = []
-    # boutons_jour = []
-    # for n in range(len(liste_jour_a_telecharger)):
-    #     # print()
-    #     indices_jour.append( calendrier.index(str(liste_jour_a_telecharger[n].day)))
-    #     # print(indice_jour)
-    #     boutons_jour.append(element_calendrier[indices_jour[n]])
-    #     # print(boutons_jour[n].text)
-    #
-    #     telecharger_CTVA.telecharger(wd,boutons_jour[n])
-
-    # Vérification de l'existance du repertoire de téléchargement et vérifier qu'un fichier zip du jour existe
-    telecharge_rep = os.path.expanduser('~') + "\\Downloads"
+    # Vérification de l'existance du repertoire de téléchargement
+    telecharge_rep = os.path.expanduser('~')+"\\Downloads"
     if os.path.exists(telecharge_rep):
-        print(datetime.now().strftime('%Y-%m-%d'))
+        # print("MDA" + datetime.now().strftime('_%d_%m_%Y'))
+        schema = "MDA"+datetime.now().strftime('_%d_%m_%Y')
+        list_fichier_zip = [fichier_zip for fichier_zip in glob.glob(telecharge_rep+"\\*.zip")]
+    # # récupération des fichiers zip des 5 jours précedent
+        list_TVA_zip = [s for s in list_fichier_zip if schema in s]
+        print(list_TVA_zip)
+        print(len(list_TVA_zip))
+    # # création d'un repertoire d'archive pour les fichiers de crédit de tva
+        rep_fichier_tva = os.getcwd()+"\\credit_tva_"+datetime.now().strftime('%d_%m_%Y')
+        if not os.path.exists(rep_fichier_tva):
+            os.makedirs(rep_fichier_tva)
+            print("Repertoire créer")
+        else:
+            print("Le repertoire existe déjà !")
+    # # Ouverture du dernier fichier zip du jour et sauvegarde dans le repertoire
+            if len(list_TVA_zip) != 0:
+                for zippe in list_TVA_zip:
+                    with ZipFile(zippe, 'r') as zip:
+                        # afficher tout le contenu du fichier zip
+                        zip.printdir()
+
+                        # extraire tous les fichiers
+                        print('Extraction...')
+                        zip.extractall(rep_fichier_tva)
+                        print('Extraction terminé!')
+    # # création de l'objet fichier pdf
+    # # récupération de la liste des pdfs
+    list_fichier_credit_tva = [fichier_credit_tva for fichier_credit_tva in glob.glob(rep_fichier_tva + "\\*.pdf")]
+    pdfCreditTvaObj = []
+    reader = []
+    pdfFileObjList = []
+    pageObj = []
+    for i in range(len(list_fichier_credit_tva)):
+        pdfCreditTvaObj.append(open(list_fichier_credit_tva[i],'rb'))
+        reader.append(PyPDF2.PdfReader(pdfCreditTvaObj[i]))
+        print("nombres de pages",len(reader[i].pages))
+        pdfFileObjList.append(open(list_fichier_credit_tva[i], 'rb'))
+    # Création d'une liste d'objet page
+        pageObj.append(reader[i].pages[1])
+
+    for j in range(len(pageObj)):
+    #  Vérification du code 2
+        if "CODIFICATION" and "2  * LE MONTANT A ETE" in pageObj[j].extract_text():
+            texte=pageObj[j].extract_text()
+            print(texte)
+            index_001 = pageObj[j].extract_text().index("001",0,len(pageObj[j].extract_text()))
+            index_frp1= pageObj[j].extract_text().index("652271",0,len(pageObj[j].extract_text()))
+            index_2023205135 = pageObj[j].extract_text().index("2023205135",0,len(pageObj[j].extract_text()))
+            index_002 = pageObj[j].extract_text().index("002", 0, len(pageObj[j].extract_text()))
+            index_frp2 = pageObj[j].extract_text().index("632232", 0, len(pageObj[j].extract_text()))
+            index_2023205136 = pageObj[j].extract_text().index("2023205136", 0, len(pageObj[j].extract_text()))
+            print("l'index de la 1er ligne",index_001)
+            print("index frp1", index_frp1)
+            print("index du N° affaire 1",index_2023205135)
+            print("l'index de la 2eme ligne",index_002)
+            print("index frp2", index_frp2)
+            print("index du N° affaire 2",index_2023205136)
+            numero_affaire1 = texte[index_2023205135:index_2023205135+10]
+            numero_affaire2 = texte[index_2023205136:index_2023205136 + 10]
+            print("le numéro d'affaire 1 est:", numero_affaire1)
+            print("le numéro d'affaire 2 est:", numero_affaire2)
+    # Détermination du nombre de ligne à traité dans le fichier
+            texte_nombre = texte.index("NOMBRE DE DEMANDES EN AFFAIRE")
+            l = texte[texte_nombre:texte_nombre+53]
+            x = re.findall("[0-9]+",l)
+            print("le nombre de tour est de :", x[0])
+            numero_affaire: list[str] = []
+            for m in range(int(x[0])):
+                numero_affaire.append(texte[2562+m*552:+2562+m*552+10])
+                print(m)
+            print("la liste des numero d'affaires est:", numero_affaire)
+            message = "Les N° d'affaires en code 2 pour la période allant du "\
+                          +liste_jour_a_telecharger[0].strftime("%A %d %B") + " jusqu'à ce jour, sont :\n\u2022 "+'\n'  u'\u2022 '.join(numero_affaire)
+            text_box = Text(
+                tab1,
+                height=9,
+                width=70,
+                wrap='word',
+                font=('Arial', 13)
+                )
+            text_box.place(x=250, y=120)
+            text_box.insert('end', message)
+            text_box.config(state='disabled')
 
     # Analyse des document charger
-    # try:
-    #     fermer = wd.find_element(By.CSS_SELECTOR, 'a[href="../delogue.php"]')
-    #     fermer.click()
-    #     print("pas 9 - ligne 1095")
-    # except:  # any exception
-    #     pass
+
 
     print("fin du programme")
 
