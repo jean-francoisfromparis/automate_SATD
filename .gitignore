@@ -4,6 +4,7 @@
 !/geckodriver.exe
 !/msedgedriver.exe
 *.ods
+*.pdf
 build/
 dist/
 entrees_SATD/

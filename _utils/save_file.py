@@ -18,8 +18,9 @@ class Saved_file:
             old_data_df = pd.read_excel(filename)
             old_data = old_data_df.values.tolist()
             if old_data:
-                numero_affaire = data_to_saved[j][9]
-                old_data = list(filter(lambda x: x[9] != numero_affaire, old_data))
+                numero_facture = data_to_saved[j][4]
+                data_to_saved[j][15] = result
+                old_data = list(filter(lambda x: x[4] != numero_facture, old_data))
                 print("old data", len(old_data))
                 print("data[j]", data_to_saved[j])
                 numpyData = np.row_stack((old_data, data_to_saved[j]))
