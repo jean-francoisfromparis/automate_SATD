@@ -71,8 +71,9 @@ class Telecharger_fichier:
                 pass
 
             try:
-                dge_button = wd.find_element(By.CSS_SELECTOR,
-                                             'body > div:nth-child(2) > p:nth-child(3) > a:nth-child(3214)')
+                # dge_button = wd.find_element(By.CSS_SELECTOR,
+                #                              'body > div:nth-child(2) > p:nth-child(3) > a:nth-child(3214)')
+                dge_button = wd.find_element(By.PARTIAL_LINK_TEXT,'940001')
                 dge_button.click()
                 wd.switch_to.default_content()
                 frames = wd.find_elements(By.TAG_NAME, "frame")
@@ -82,16 +83,19 @@ class Telecharger_fichier:
             except:
                 pass
             # Récupération des lignes du tableau du calendrier
+            tableau_calendrier = WebDriverWait(wd, 20).until(EC.visibility_of_element_located((By.ID, 'calendrier')))
+
             element_calendrier = wd.find_elements(By.CLASS_NAME,"day")
+            print("les éléménts du calendrier : ",element_calendrier)
             calendrier = []
             for jour_calendrier in element_calendrier:
                 calendrier.append(jour_calendrier.text)
 
-            print(calendrier)
+            print("Le calendrier : ",calendrier)
             # boutons_jour = [wd.find_element(By.CSS_SELECTOR,'#calendrier > div > table > tbody > tr:nth-child(2) > td.day.selected.today')]
-            print(str(liste_jour_a_telecharger[n].day))
+            print("La liste des jours à télécharger",str(liste_jour_a_telecharger[n].day))
             indices_jour = calendrier.index(str(liste_jour_a_telecharger[n].day))
-            print(indices_jour)
+            print("l'indice du jour",indices_jour)
             boutons_jour = element_calendrier[indices_jour]
             print("le texte du bouton:",boutons_jour.text)
 
